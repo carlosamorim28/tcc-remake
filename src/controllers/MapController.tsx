@@ -10,6 +10,9 @@ export default function MapController(): MapControllerInterface {
   const [elevationPath, setElevationPath] = useState<LatLng[]>([])
   const [distanceInMeters, setDistanceInMeters] = useState<number>(0)
   const [sightLine, setSightLine] = useState<LatLng[]>([]) // linha de visada
+  const [topFresnelElipsoid, setTopFresnelElipsoid] = useState<LatLng[]>([])
+  const [bottomFresnelElipsoid, setBottomFresnelElipsoid] = useState<LatLng[]>([])
+
   const [maxInterferencePoint, setMaxInterferencePoint] = useState<LatLng>({elevation: 0, lat: 0, lng: 0})
   const [maxInterferencePointDistance, setMaxInterferencePointDistance] = useState<number>(0)
   const [azimuthInDegrees, setAzimuthInDegrees] = useState<AzimuthInterface>({normal: 0, inverse: 0})
@@ -35,6 +38,7 @@ export default function MapController(): MapControllerInterface {
   function generateSightLine(){
     if(originPoint.lat === 0 || destinationPoint.lat === 0) return
     const points: LatLng[] = [];
+
     const toRad = (deg: number) => (deg * Math.PI) / 180;
     const toDeg = (rad: number) => (rad * 180) / Math.PI;
 
@@ -54,8 +58,16 @@ export default function MapController(): MapControllerInterface {
         )
       );
 
-    for (let i = 0; i <= elevationPath.length; i++) {
-      const f = i / elevationPath.length;
+    // Se os pontos forem idênticos
+    if (d === 0) {
+      return Array.from({ length: elevationPath.length }, () => originPoint);
+    }
+
+    for (let i = 0; i < elevationPath.length; i++) {
+
+      // Aqui está a correção:
+      // usamos (elevationPath.length - 1)
+      const f = i / (elevationPath.length - 1);
 
       const A = Math.sin((1 - f) * d) / Math.sin(d);
       const B = Math.sin(f * d) / Math.sin(d);
@@ -85,6 +97,7 @@ export default function MapController(): MapControllerInterface {
     function generateSightLineWithParams(originPoint: LatLng, destinationPoint: LatLng): LatLng[]{
     if(originPoint.lat === 0 || destinationPoint.lat === 0) return []
     const points: LatLng[] = [];
+
     const toRad = (deg: number) => (deg * Math.PI) / 180;
     const toDeg = (rad: number) => (rad * 180) / Math.PI;
 
@@ -104,8 +117,16 @@ export default function MapController(): MapControllerInterface {
         )
       );
 
-    for (let i = 0; i <= elevationPath.length; i++) {
-      const f = i / elevationPath.length;
+    // Se os pontos forem idênticos
+    if (d === 0) {
+      return Array.from({ length: elevationPath.length }, () => originPoint);
+    }
+
+    for (let i = 0; i < elevationPath.length; i++) {
+
+      // Aqui está a correção:
+      // usamos (elevationPath.length - 1)
+      const f = i / (elevationPath.length - 1);
 
       const A = Math.sin((1 - f) * d) / Math.sin(d);
       const B = Math.sin(f * d) / Math.sin(d);
@@ -160,17 +181,42 @@ export default function MapController(): MapControllerInterface {
     setMaxInterferencePointDistance(calcularDistanciaHaversine(originPoint.lat, originPoint.lng, maxInterferencePoint.lat, maxInterferencePoint.lng))
   }
 
+  function calculateFresnelRatio(originPoint: LatLng, interestPoint: LatLng, destinationPoint: LatLng, frequence: number): number {
+    const totalDistance = calcularDistanciaHaversine(originPoint.lat, originPoint.lng, destinationPoint.lat, destinationPoint.lng)
+    const distance1 = calcularDistanciaHaversine(originPoint.lat, originPoint.lng, interestPoint.lat, interestPoint.lng)
+    const distance2 = totalDistance - distance1
+    const distance1Xdistance2 = distance1 * distance2
+    const totalDistanceXfrequece = totalDistance * frequence
+    const fresnelRatio = 17.3*Math.sqrt(distance1Xdistance2 / totalDistanceXfrequece)
+    return fresnelRatio
+  }
+
+  function genereteFresnelElipsoid(frequence: number = 8){
+    const topFresnelElipsoid: LatLng[] = []
+    const bottomFresnelElipsoid: LatLng[] = []
+    sightLine.map((interestPoint) => {
+      const fresnelRatioPoint = calculateFresnelRatio(originPoint, interestPoint, destinationPoint, frequence)
+      topFresnelElipsoid.push({lat: interestPoint.lat, lng: interestPoint.lng, elevation: interestPoint.elevation + fresnelRatioPoint})
+      bottomFresnelElipsoid.push({lat: interestPoint.lat, lng: interestPoint.lng, elevation: interestPoint.elevation - fresnelRatioPoint})
+    })
+    setTopFresnelElipsoid(topFresnelElipsoid)
+    setBottomFresnelElipsoid(bottomFresnelElipsoid)
+  }
+
   useEffect(() => {
-    generateSightLine()
     calculateAzimuthInDegrees()
-   
   },[originPoint, destinationPoint])
 
+  useEffect(()=>{
+    generateSightLine()
+  },[elevationPath])
 
-
-  useEffect(() => {
-    console.log(sightLine)
+  useEffect(()=>{
+    genereteFresnelElipsoid()
+    console.log("elevation path", elevationPath)
+    console.log("sightLine", sightLine)
   },[sightLine])
+
   return {
     destinationPoint,
     distanceInMeters,
@@ -186,6 +232,8 @@ export default function MapController(): MapControllerInterface {
     sightLine,
     azimuthInDegrees,
     setAzimuthInDegrees,
-    maxInterferencePointDistance
+    maxInterferencePointDistance,
+    topFresnelElipsoid,
+    bottomFresnelElipsoid
   }
 }

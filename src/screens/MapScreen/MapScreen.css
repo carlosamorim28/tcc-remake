@@ -36,3 +36,8 @@
 .map-contianer{
   height: 100vh;
 }
+
+.graph-container{
+  grid-column: span 4;
+  background-color: yellow;
+}

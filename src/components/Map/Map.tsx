@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect } from "react";
 import { GoogleMap, LoadScript, Marker, Polyline } from "@react-google-maps/api";
 import type MapControllerInterface from "../../models/MapControllerInterface";
+import { calcularDistanciaHaversine } from "../../helpers/helper";
 
 const containerStyle = {
   width: "100%",
@@ -26,17 +27,17 @@ function Map({controller}: {controller: MapControllerInterface}) {
 // }, [distanceInMeters, setDistanceInMeters]);
   useEffect(()=>{
     if(destinationPoint.lat && originPoint.lat) {
-      const distance = google.maps.geometry.spherical.computeDistanceBetween(
-        new google.maps.LatLng(originPoint.lat, originPoint.lng),
-        new google.maps.LatLng(destinationPoint.lat, destinationPoint.lng)
-      )
+      // const distance = google.maps.geometry.spherical.computeDistanceBetween(
+      //   new google.maps.LatLng(originPoint.lat, originPoint.lng),
+      //   new google.maps.LatLng(destinationPoint.lat, destinationPoint.lng)
+      // )
+      const distance = calcularDistanciaHaversine(originPoint.lat, originPoint.lng, destinationPoint.lat, destinationPoint.lng)
       setDistanceInMeters(distance)
     }
 
   },[destinationPoint, originPoint])
 
   useEffect(()=>{
-    console.log('Talvez', distanceInMeters)
     if(originPoint.lat && destinationPoint.lat){
       const elevator = new google.maps.ElevationService();
       const points:LatLng[] = []
@@ -54,6 +55,7 @@ function Map({controller}: {controller: MapControllerInterface}) {
               elevation: point.elevation
             })
           });
+          // console.log(points)
           setElevationPath(points)
         }
       }
@@ -67,7 +69,6 @@ function Map({controller}: {controller: MapControllerInterface}) {
       const elevationService = new google.maps.ElevationService();
       const lat = event.latLng.lat();
       const lng = event.latLng.lng()
-      console.log("===================================== Event======================", event.latLng)
       elevationService.getElevationForLocations(
       { locations: [{ lat, lng }] },
       (results, status) => {

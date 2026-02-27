@@ -1,4 +1,5 @@
 import Button from "../../components/Button/Button"
+import Graph from "../../components/Graph/Graph"
 import Input from "../../components/Input/Input"
 import Map from "../../components/Map/Map"
 import DataController from "../../controllers/DataController"
@@ -6,6 +7,18 @@ import "./MapScreen.css"
 export default function MapScreen(): React.ReactElement {
 
   const dataController = DataController()
+
+  function renderMap(): React.ReactElement {
+    if(dataController.mapController.sightLine.length > 0 && dataController.mapController.elevationPath.length > 0 ){
+      return (
+        <></>
+      )
+    }else {
+      return (
+        <></>
+      )
+    }
+  }
   
   return (
     <div className='container'>
@@ -26,6 +39,10 @@ export default function MapScreen(): React.ReactElement {
         <div className="button-grid">
          <Button controller={dataController.generateGraphButton} />
         </div>
+        <div className="graph-container" >
+          <Graph naturalPath={dataController.mapController.elevationPath} straightLine={dataController.mapController.sightLine} bottomFresnelElipsoid={dataController.mapController.bottomFresnelElipsoid} topFresnelElipsoid={dataController.mapController.topFresnelElipsoid} />
+        </div>
+        
       </div>
 
 
