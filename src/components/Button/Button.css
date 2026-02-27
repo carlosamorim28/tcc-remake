@@ -1,0 +1,17 @@
+.button-container {
+  width: 100%;
+  display: flex;
+}
+
+.button {
+  flex: 1;
+  border: 0px;
+  border-radius: 20px;
+  height: 32px;
+  
+}
+
+.button:hover {
+  opacity: 0.9;
+  cursor: pointer;
+}

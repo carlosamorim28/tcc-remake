@@ -1,0 +1,38 @@
+.container {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+}
+
+.active-collumn {
+  display: grid;
+  height: fit-content;
+  grid-template-columns: repeat(4, 1fr);
+  grid-column: span 4;
+  background-color: red;
+  gap: 4px;
+}
+
+.input-grid{
+  grid-column: span 3;
+  /* background-color: blueviolet; */
+}
+
+.input-grid-heigth{
+  grid-column: span 1;
+  /* background-color: blueviolet; */
+}
+
+.button-grid {
+    grid-column: span 4;
+    padding: 0px 10px 0px 10px;
+
+}
+
+.map-collumn {
+  grid-column: span 8;
+  background-color: blue;
+}
+
+.map-contianer{
+  height: 100vh;
+}

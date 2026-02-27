@@ -1,0 +1,20 @@
+.input {
+  flex: 1;
+  /* background-color: yellow; */
+  padding: 4px;
+  border-radius: 20px;
+  border: 0px;
+}
+.input-container {
+  width: 100%;
+  display: flex;
+}
+
+.vertical{
+  flex-direction: column;
+}
+
+.label {
+  line-height: 1px;
+  padding: 0px;
+}
