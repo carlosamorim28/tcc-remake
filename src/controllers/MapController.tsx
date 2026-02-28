@@ -302,20 +302,16 @@ export default function MapController(): MapControllerInterface {
     }
 
     const reflectedPointIndex = selectPointIndex(d1! * 1000)
-    console.log('reflectedPointIndex', reflectedPointIndex)
     const part1RelfextRay: LatLng[] = generateSightLineWithParams(originPointNoObstructed, elevationPath[reflectedPointIndex], reflectedPointIndex)
     const part2RelfextRay: LatLng[] = generateSightLineWithParams(elevationPath[reflectedPointIndex+1], destinationPointNoObstructed, elevationPath.length - reflectedPointIndex)
     setReflexiveRay([...part1RelfextRay, ...part2RelfextRay])
 
     function selectPointIndex(testedDistance: number): number {
-      console.log("d1", testedDistance)
       let actualDistance = 1000000000
       let actualIndex = 0
       elevationPath.forEach((point, index) =>{
         const calculatedDistance = calcularDistanciaHaversine(originPoint.lat, originPoint.lng, point.lat, point.lng)
-        console.log('Actual distante', Math.abs(testedDistance - calculatedDistance), actualDistance)
         if(Math.abs(testedDistance - calculatedDistance) < actualDistance){
-          console.log('entrou')
           actualDistance = Math.abs(testedDistance - calculatedDistance)
           actualIndex = index
         }

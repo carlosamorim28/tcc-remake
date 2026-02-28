@@ -37,29 +37,100 @@ function Map({controller}: {controller: MapControllerInterface}) {
 
   },[destinationPoint, originPoint])
 
+
+
+  async function getElevationWithInterval(
+    originPoint: LatLng,
+    destinationPoint: LatLng,
+    intervalMeters = 500
+  ) {
+    const elevator = new google.maps.ElevationService();
+
+    const origin = new google.maps.LatLng(originPoint.lat, originPoint.lng);
+    const destination = new google.maps.LatLng(destinationPoint.lat, destinationPoint.lng);
+
+    const totalDistance =
+      google.maps.geometry.spherical.computeDistanceBetween(origin, destination);
+
+    const totalSamples = Math.ceil(totalDistance / intervalMeters);
+
+    const MAX_SAMPLES = 512;
+
+    // Se estiver dentro do limite, faz direto
+    if (totalSamples <= MAX_SAMPLES) {
+      return requestElevation(origin, destination, totalSamples);
+    }
+
+    // 🔥 Divide em múltiplos segmentos
+    const segmentCount = Math.ceil(totalSamples / MAX_SAMPLES);
+    const results: LatLng[] = [];
+
+    for (let i = 0; i < segmentCount; i++) {
+      const startFraction = i / segmentCount;
+      const endFraction = (i + 1) / segmentCount;
+
+      const segmentStart =
+        google.maps.geometry.spherical.interpolate(origin, destination, startFraction);
+
+      const segmentEnd =
+        google.maps.geometry.spherical.interpolate(origin, destination, endFraction);
+
+      const segmentDistance =
+        google.maps.geometry.spherical.computeDistanceBetween(segmentStart, segmentEnd);
+
+      const segmentSamples = Math.ceil(segmentDistance / intervalMeters);
+
+      const segmentResult = await requestElevation(
+        segmentStart,
+        segmentEnd,
+        segmentSamples
+      );
+
+      // Evita duplicar ponto de junção
+      if (i > 0) segmentResult.shift();
+
+      results.push(...segmentResult);
+    }
+
+    return results;
+  }
+
+  function requestElevation(
+    start: google.maps.LatLng,
+    end: google.maps.LatLng,
+    samples: number
+  ): Promise<LatLng[]> {
+    return new Promise((resolve, reject) => {
+      const elevator = new google.maps.ElevationService();
+
+      elevator.getElevationAlongPath(
+        {
+          path: [start, end],
+          samples: samples,
+        },
+        (results, status) => {
+          if (status === "OK" && results) {
+            resolve(
+              results.map((point) => ({
+                lat: point.location.lat(),
+                lng: point.location.lng(),
+                elevation: point.elevation,
+              }))
+            );
+          } else {
+            reject(status);
+          }
+        }
+      );
+    });
+  }
+
+
   useEffect(()=>{
     if(originPoint.lat && destinationPoint.lat){
-      const elevator = new google.maps.ElevationService();
-      const points:LatLng[] = []
-    elevator.getElevationAlongPath(
-      {
-        path: [originPoint, destinationPoint],
-        samples: 100, 
-      },
-      (results, status) => {
-        if (status === "OK" && results) {
-          results.forEach((point) => {
-            points.push({
-              lat: point.location?.lat() ?? 0,
-              lng: point.location?.lng() ?? 0,
-              elevation: point.elevation
-            })
-          });
-          // console.log(points)
-          setElevationPath(points)
-        }
-      }
-    );
+    getElevationWithInterval(originPoint, destinationPoint).then((points)=>{
+      setElevationPath(points)
+    })
   }
   },[destinationPoint, originPoint])
   
