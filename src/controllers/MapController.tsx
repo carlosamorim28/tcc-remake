@@ -6,12 +6,22 @@ import { calcularDistanciaHaversine } from "../helpers/helper"
 
 export default function MapController(): MapControllerInterface {
   const [originPoint, setOriginalPoint] =  useState<LatLng>({lat:0, lng: 0, elevation: 0})
+  const [originPointNoObstructed, setOriginalPointNoObstructed] =  useState<LatLng>({lat:0, lng: 0, elevation: 0})
   const [destinationPoint, setDestinationPoint] =  useState<LatLng>({lat: 0, lng: 0, elevation: 0})
+  const [destinationPointNoObstructed, setDestinationPointNoObstructed] =  useState<LatLng>({lat: 0, lng: 0, elevation: 0})
+  
   const [elevationPath, setElevationPath] = useState<LatLng[]>([])
   const [distanceInMeters, setDistanceInMeters] = useState<number>(0)
+  
   const [sightLine, setSightLine] = useState<LatLng[]>([]) // linha de visada
+  const [sightLineNoObstructed, setSightLineNoObstructed] = useState<LatLng[]>([]) // linha de visada não obstruída
+  
+  const [fresnalElipsoidRatio, setFresnelElipsoidRatio] = useState<number[]>([])
+  
   const [topFresnelElipsoid, setTopFresnelElipsoid] = useState<LatLng[]>([])
   const [bottomFresnelElipsoid, setBottomFresnelElipsoid] = useState<LatLng[]>([])
+  const [topFresnelElipsoidNoObstructed, setTopFresnelElipsoidNoObstructed] = useState<LatLng[]>([])
+  const [bottomFresnelElipsoidNoObstructed, setBottomFresnelElipsoidNoObstructed] = useState<LatLng[]>([])
 
   const [maxInterferencePoint, setMaxInterferencePoint] = useState<LatLng>({elevation: 0, lat: 0, lng: 0})
   const [maxInterferencePointDistance, setMaxInterferencePointDistance] = useState<number>(0)
@@ -122,7 +132,7 @@ export default function MapController(): MapControllerInterface {
       return Array.from({ length: elevationPath.length }, () => originPoint);
     }
 
-    for (let i = 0; i < elevationPath.length; i++) {
+    for (let i = 0; i < elevationPath.length; i++) {sightLineNoObstructed
 
       // Aqui está a correção:
       // usamos (elevationPath.length - 1)
@@ -156,8 +166,8 @@ export default function MapController(): MapControllerInterface {
   function getMaxInterferencePoint(){
 
     let maxInterferencePoint: LatLng = {elevation: 0, lat: 0, lng: 0}
-    const originPointToCalc = originPoint
-    const destinationPointToCalc = destinationPoint
+    const originPointToCalc = { ...originPoint }
+    const destinationPointToCalc = { ...destinationPoint }
     while(true){
       let sightLineIsHigher = true
       const sightLineToCalc = generateSightLineWithParams(originPointToCalc, destinationPointToCalc)
@@ -187,6 +197,7 @@ export default function MapController(): MapControllerInterface {
     const distance2 = totalDistance - distance1
     const distance1Xdistance2 = distance1 * distance2
     const totalDistanceXfrequece = totalDistance * frequence
+    if(Math.abs(distance2) < 0.01) return 0
     const fresnelRatio = 17.3*Math.sqrt(distance1Xdistance2 / totalDistanceXfrequece)
     return fresnelRatio
   }
@@ -194,13 +205,58 @@ export default function MapController(): MapControllerInterface {
   function genereteFresnelElipsoid(frequence: number = 8){
     const topFresnelElipsoid: LatLng[] = []
     const bottomFresnelElipsoid: LatLng[] = []
+    const fresnelElipsoideRatio: number[] = []
     sightLine.map((interestPoint) => {
       const fresnelRatioPoint = calculateFresnelRatio(originPoint, interestPoint, destinationPoint, frequence)
       topFresnelElipsoid.push({lat: interestPoint.lat, lng: interestPoint.lng, elevation: interestPoint.elevation + fresnelRatioPoint})
       bottomFresnelElipsoid.push({lat: interestPoint.lat, lng: interestPoint.lng, elevation: interestPoint.elevation - fresnelRatioPoint})
+      fresnelElipsoideRatio.push(fresnelRatioPoint)
     })
     setTopFresnelElipsoid(topFresnelElipsoid)
     setBottomFresnelElipsoid(bottomFresnelElipsoid)
+    setFresnelElipsoidRatio(fresnelElipsoideRatio)
+  }
+
+  function releasePercentFresnelRatio(frequence: number){
+    return 1
+  }
+
+  function calculateNoObstructedValues(frequence: number = 8, setheightTwoerA: (value: string) => void, setheightTwoerB: (value: string) => void) {
+
+    let calculatedHeight = 0
+    const originPointToCalc = { ...originPoint }
+    const destinationPointToCalc = { ...destinationPoint }
+
+
+    while(true){
+      let sightLineIsHigher = true
+      const sightLineToCalc = generateSightLineWithParams(originPointToCalc, destinationPointToCalc).map((point, index) => { return { ...point, elevation: point.elevation - fresnalElipsoidRatio[index] } })
+      
+      for(let i = 0 ; i < elevationPath.length; i++) {
+        if((sightLineToCalc[i].elevation * releasePercentFresnelRatio(frequence))  > elevationPath[i].elevation) {
+          continue
+        } else {
+          sightLineIsHigher = false
+        }
+      }
+      if(sightLineIsHigher){
+        break;
+      } else {
+        originPointToCalc.elevation += 1
+        destinationPointToCalc.elevation += 1
+        calculatedHeight += 1
+      }
+
+      
+    }
+
+    setOriginalPointNoObstructed(originPointToCalc)
+    setDestinationPointNoObstructed(destinationPointToCalc)
+    setSightLineNoObstructed(generateSightLineWithParams(originPointToCalc, destinationPointToCalc))
+    setTopFresnelElipsoidNoObstructed(generateSightLineWithParams(originPointToCalc, destinationPointToCalc).map((point, index) => { return { ...point, elevation: point.elevation + fresnalElipsoidRatio[index] } }))
+    setBottomFresnelElipsoidNoObstructed(generateSightLineWithParams(originPointToCalc, destinationPointToCalc).map((point, index) => { return { ...point, elevation: point.elevation - fresnalElipsoidRatio[index] } }))
+    setheightTwoerA(`${calculatedHeight}`)
+    setheightTwoerB(`${calculatedHeight}`)
   }
 
   useEffect(() => {
@@ -213,8 +269,6 @@ export default function MapController(): MapControllerInterface {
 
   useEffect(()=>{
     genereteFresnelElipsoid()
-    console.log("elevation path", elevationPath)
-    console.log("sightLine", sightLine)
   },[sightLine])
 
   return {
@@ -223,17 +277,24 @@ export default function MapController(): MapControllerInterface {
     elevationPath,
     originPoint,
     maxInterferencePoint,
+    sightLine,
+    azimuthInDegrees,
+    maxInterferencePointDistance,
+    topFresnelElipsoid,
+    bottomFresnelElipsoid,
+    fresnalElipsoidRatio,
+    originPointNoObstructed,
+    destinationPointNoObstructed,
+    topFresnelElipsoidNoObstructed,
+    bottomFresnelElipsoidNoObstructed,
+    sightLineNoObstructed,
     getMaxInterferencePoint,
     setDestinationPoint,
     setDistanceInMeters,
     setElevationPath,
     setOriginalPoint,
     setSightLine,
-    sightLine,
-    azimuthInDegrees,
     setAzimuthInDegrees,
-    maxInterferencePointDistance,
-    topFresnelElipsoid,
-    bottomFresnelElipsoid
+    calculateNoObstructedValues
   }
 }

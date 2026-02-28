@@ -12,6 +12,12 @@ export default interface MapControllerInterface {
   distanceInMeters: number
   azimuthInDegrees: AzimuthInterface
   maxInterferencePointDistance: number
+  fresnalElipsoidRatio: number[]
+  originPointNoObstructed: LatLng
+  destinationPointNoObstructed: LatLng
+  topFresnelElipsoidNoObstructed: LatLng[]
+  bottomFresnelElipsoidNoObstructed: LatLng[]
+  sightLineNoObstructed: LatLng[]
   setOriginalPoint: (value: LatLng) => void
   setDestinationPoint: (value: LatLng) => void
   setElevationPath: (value: LatLng[]) => void
@@ -19,5 +25,6 @@ export default interface MapControllerInterface {
   setSightLine: (value: LatLng[]) => void
   getMaxInterferencePoint: VoidFunction
   setAzimuthInDegrees: (value: AzimuthInterface) => void
+  calculateNoObstructedValues: (frequence: number, setheightTwoerA: (value: string) => void, setheightTwoerB: (value: string) => void) => void
   
 }

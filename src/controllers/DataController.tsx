@@ -1,4 +1,5 @@
 
+import { useEffect } from "react";
 import ButtonContoller from "./ButtonController";
 import { InputController } from "./InputController";
 import MapController from "./MapController";
@@ -11,8 +12,11 @@ export default function DataController() {
   const adtionalHeight = InputController("Altura adicional")
 
   const generateGraphButton = ButtonContoller("Gerar Gráfico", () =>{console.log("teste")})
-
   const mapController = MapController()
+
+  useEffect(()=>{
+    mapController.calculateNoObstructedValues(8, twoerAHeight.setValue, twoerBHeight.setValue)
+  }, [mapController.fresnalElipsoidRatio])
 
   return{
     towerAInput,
