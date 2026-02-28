@@ -25,6 +25,7 @@ export default function MapController(): MapControllerInterface {
 
   const [maxInterferencePoint, setMaxInterferencePoint] = useState<LatLng>({elevation: 0, lat: 0, lng: 0})
   const [maxInterferencePointDistance, setMaxInterferencePointDistance] = useState<number>(0)
+  const [reflexiveRay, setReflexiveRay] = useState<LatLng[]>([])
   const [azimuthInDegrees, setAzimuthInDegrees] = useState<AzimuthInterface>({normal: 0, inverse: 0})
 
   function calculateAzimuthInDegrees (): void {
@@ -104,7 +105,7 @@ export default function MapController(): MapControllerInterface {
     setSightLine(points)
   }
 
-    function generateSightLineWithParams(originPoint: LatLng, destinationPoint: LatLng): LatLng[]{
+    function generateSightLineWithParams(originPoint: LatLng, destinationPoint: LatLng, length?: number): LatLng[]{
     if(originPoint.lat === 0 || destinationPoint.lat === 0) return []
     const points: LatLng[] = [];
 
@@ -126,17 +127,17 @@ export default function MapController(): MapControllerInterface {
               Math.sin((lon2 - lon1) / 2) ** 2
         )
       );
-
+    const lengthUsed = length ?? elevationPath.length
     // Se os pontos forem idênticos
     if (d === 0) {
-      return Array.from({ length: elevationPath.length }, () => originPoint);
+      return Array.from({ length: lengthUsed }, () => originPoint);
     }
 
-    for (let i = 0; i < elevationPath.length; i++) {sightLineNoObstructed
+    for (let i = 0; i < lengthUsed; i++) {
 
       // Aqui está a correção:
-      // usamos (elevationPath.length - 1)
-      const f = i / (elevationPath.length - 1);
+      // usamos (lengthUsed - 1)
+      const f = i / (lengthUsed - 1);
 
       const A = Math.sin((1 - f) * d) / Math.sin(d);
       const B = Math.sin(f * d) / Math.sin(d);
@@ -259,6 +260,70 @@ export default function MapController(): MapControllerInterface {
     setheightTwoerB(`${calculatedHeight}`)
   }
 
+  function calculateReflexiveRay(kFactor: number = 0.75, precision: number = 10){ 
+    if(originPointNoObstructed.lat === 0  || originPointNoObstructed.lng === 0 || destinationPointNoObstructed.lat === 0 || destinationPointNoObstructed.lng === 0) return
+
+    const hanta = originPointNoObstructed.elevation;
+    const ha = originPoint.elevation;
+    const hantb = destinationPointNoObstructed.elevation;
+    const hb = destinationPoint.elevation;
+    const k = kFactor;
+    const aux = distanceInMeters / 1000;
+    const d = distanceInMeters; // metros
+    const e = precision;
+
+    const h1 = hanta + ha;
+    const h2 = hantb + hb;
+
+    let xo = h2 / (h1 + h2); // Aproximação Inicial
+    const r = 6370e3;
+
+    const aux1 = (h1 * k * r) / (d ** 2);
+    const aux2 = 0.5 - ((h1 + h2) * k * r) / (d ** 2);
+
+    let fx = xo ** 3 - 1.5 * (xo ** 2) + (aux2 * xo) + aux1;
+    let fxl = 3 * (xo ** 2) - 3 * xo + aux2;
+
+    let d1, d2;
+
+    if (Math.abs(fx) < e) {
+      d1 = (d * xo) / 1000;          // km
+      d2 = ((1 - xo) * d) / 1000;    // km
+    }
+
+    while (Math.abs(fx) > e) {
+      const x = xo - (fx / fxl);
+      fx = x ** 3 - 1.5 * (x ** 2) + (aux2 * x) + aux1;
+      fxl = 3 * (x ** 2) - 3 * x + aux2;
+      xo = x;
+
+      d1 = (d * x) / 1000;           // km
+      d2 = ((1 - x) * d) / 1000;     // km
+    }
+
+    const reflectedPointIndex = selectPointIndex(d1! * 1000)
+    console.log('reflectedPointIndex', reflectedPointIndex)
+    const part1RelfextRay: LatLng[] = generateSightLineWithParams(originPointNoObstructed, elevationPath[reflectedPointIndex], reflectedPointIndex)
+    const part2RelfextRay: LatLng[] = generateSightLineWithParams(elevationPath[reflectedPointIndex+1], destinationPointNoObstructed, elevationPath.length - reflectedPointIndex)
+    setReflexiveRay([...part1RelfextRay, ...part2RelfextRay])
+
+    function selectPointIndex(testedDistance: number): number {
+      console.log("d1", testedDistance)
+      let actualDistance = 1000000000
+      let actualIndex = 0
+      elevationPath.forEach((point, index) =>{
+        const calculatedDistance = calcularDistanciaHaversine(originPoint.lat, originPoint.lng, point.lat, point.lng)
+        console.log('Actual distante', Math.abs(testedDistance - calculatedDistance), actualDistance)
+        if(Math.abs(testedDistance - calculatedDistance) < actualDistance){
+          console.log('entrou')
+          actualDistance = Math.abs(testedDistance - calculatedDistance)
+          actualIndex = index
+        }
+      })
+      return actualIndex
+    }
+  }
+
   useEffect(() => {
     calculateAzimuthInDegrees()
   },[originPoint, destinationPoint])
@@ -288,6 +353,7 @@ export default function MapController(): MapControllerInterface {
     topFresnelElipsoidNoObstructed,
     bottomFresnelElipsoidNoObstructed,
     sightLineNoObstructed,
+    reflexiveRay,
     getMaxInterferencePoint,
     setDestinationPoint,
     setDistanceInMeters,
@@ -295,6 +361,7 @@ export default function MapController(): MapControllerInterface {
     setOriginalPoint,
     setSightLine,
     setAzimuthInDegrees,
-    calculateNoObstructedValues
+    calculateNoObstructedValues,
+    calculateReflexiveRay
   }
 }

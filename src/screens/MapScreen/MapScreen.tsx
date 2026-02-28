@@ -40,11 +40,11 @@ export default function MapScreen(): React.ReactElement {
          <Button controller={dataController.generateGraphButton} />
         </div>
         <div className="graph-container" >
-          <Graph naturalPath={dataController.mapController.elevationPath} straightLine={dataController.mapController.sightLine} bottomFresnelElipsoid={dataController.mapController.bottomFresnelElipsoid} topFresnelElipsoid={dataController.mapController.topFresnelElipsoid} />
+          <Graph naturalPath={dataController.mapController.elevationPath} straightLine={dataController.mapController.sightLine} bottomFresnelElipsoid={dataController.mapController.bottomFresnelElipsoid} topFresnelElipsoid={dataController.mapController.topFresnelElipsoid} reflexiveRay={[]} />
         </div>
 
         <div className="graph-container" >
-          <Graph naturalPath={dataController.mapController.elevationPath} straightLine={dataController.mapController.sightLineNoObstructed} bottomFresnelElipsoid={dataController.mapController.bottomFresnelElipsoidNoObstructed} topFresnelElipsoid={dataController.mapController.topFresnelElipsoidNoObstructed} />
+          <Graph naturalPath={dataController.mapController.elevationPath} straightLine={dataController.mapController.sightLineNoObstructed} bottomFresnelElipsoid={dataController.mapController.bottomFresnelElipsoidNoObstructed} topFresnelElipsoid={dataController.mapController.topFresnelElipsoidNoObstructed} reflexiveRay={dataController.mapController.reflexiveRay} />
         </div>
         
       </div>

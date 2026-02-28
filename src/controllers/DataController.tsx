@@ -18,6 +18,10 @@ export default function DataController() {
     mapController.calculateNoObstructedValues(8, twoerAHeight.setValue, twoerBHeight.setValue)
   }, [mapController.fresnalElipsoidRatio])
 
+  useEffect(() => {
+    mapController.calculateReflexiveRay(1.33, 0.75)
+  }, [mapController.destinationPointNoObstructed])
+
   return{
     towerAInput,
     towerBInput,

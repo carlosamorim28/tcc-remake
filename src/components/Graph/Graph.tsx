@@ -29,9 +29,10 @@ type Props = {
   straightLine: GeoPoint[];
   topFresnelElipsoid: GeoPoint[];
   bottomFresnelElipsoid: GeoPoint[];
+  reflexiveRay: GeoPoint[]
 };
 
-export default function Graph({ naturalPath, straightLine, topFresnelElipsoid, bottomFresnelElipsoid }: Props) {
+export default function Graph({ naturalPath, straightLine, topFresnelElipsoid, bottomFresnelElipsoid, reflexiveRay }: Props) {
 
   const labels = naturalPath.map((_, index) => index);
 
@@ -61,6 +62,12 @@ export default function Graph({ naturalPath, straightLine, topFresnelElipsoid, b
         label: "Elipsoide de fresnel",
         data: bottomFresnelElipsoid.map(p => p.elevation),
         borderColor: "gray",
+        tension: 0.3,
+      },
+      {
+        label: "raio refletido",
+        data: reflexiveRay.map(p => p.elevation),
+        borderColor: "pourple",
         tension: 0.3,
       },
       
