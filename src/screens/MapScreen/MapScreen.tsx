@@ -2,61 +2,31 @@ import Button from "../../components/Button/Button"
 import Graph from "../../components/Graph/Graph"
 import Input from "../../components/Input/Input"
 import Map from "../../components/Map/Map"
+import { Menu } from "../../components/Menu/Menu"
 import DataController from "../../controllers/DataController"
+import MenuController from "../../controllers/MenuController"
+import GeneralSession from "./GeneralSession/GeneralSession"
 import "./MapScreen.css"
+import PowerBalanceForm from "./PowerBalance/PowerBalanceForm"
 export default function MapScreen(): React.ReactElement {
 
   const dataController = DataController()
+  const menuController = MenuController()
 
-  function renderMap(): React.ReactElement {
-    if(dataController.mapController.sightLine.length > 0 && dataController.mapController.elevationPath.length > 0 ){
-      return (
-        <></>
-      )
-    }else {
-      return (
-        <></>
-      )
-    }
-  }
   
   return (
     <div className='container'>
       <div className='active-collumn' >
-        <div className="input-grid">
-          <Input controller={dataController.towerAInput} />
-        </div>
-        <div className="input-grid-heigth">
-          <Input controller={dataController.twoerAHeight} />
-        </div>
-        <div className="input-grid">
-          <Input controller={dataController.towerBInput} />
-        </div>
-        <div className="input-grid-heigth">
-          <Input controller={dataController.twoerBHeight} />
-        </div>
-        <div className="input-grid">
-          <Input controller={dataController.towerAInput} />
-        </div>
-        <div className="input-grid">
-          <Input controller={dataController.frequency} />
-        </div>
-        <div className="input-grid">
-          <Input controller={dataController.kFactor} />
-        </div>
+        <div className="active-width">
+          <Menu controller={menuController} />
+          {menuController.menuOptions[0].isSelected && (
+            <GeneralSession dataController={dataController} />
+          )}
 
-
-        <div className="button-grid">
-         <Button controller={dataController.generateGraphButton} />
+          {menuController.menuOptions[2].isSelected && (
+            <PowerBalanceForm dataController={dataController} />
+          )}
         </div>
-        <div className="graph-container" >
-          <Graph naturalPath={dataController.mapController.elevationPath} straightLine={dataController.mapController.sightLine} bottomFresnelElipsoid={dataController.mapController.bottomFresnelElipsoid} topFresnelElipsoid={dataController.mapController.topFresnelElipsoid} reflexiveRay={[]} />
-        </div>
-
-        <div className="graph-container" >
-          <Graph naturalPath={dataController.mapController.elevationPath} straightLine={dataController.mapController.sightLineNoObstructed} bottomFresnelElipsoid={dataController.mapController.bottomFresnelElipsoidNoObstructed} topFresnelElipsoid={dataController.mapController.topFresnelElipsoidNoObstructed} reflexiveRay={dataController.mapController.reflexiveRay} />
-        </div>
-        
       </div>
 
 

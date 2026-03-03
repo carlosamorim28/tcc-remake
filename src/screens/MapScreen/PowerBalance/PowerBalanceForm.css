@@ -1,0 +1,9 @@
+.power-balance-form-container-input-full-width {
+  height: fit-content;
+  grid-column: span 4;
+}
+
+.power-balance-form-container-input-2-collumns {
+  height: fit-content;
+  grid-column: span 2;
+}

@@ -18,7 +18,7 @@ export default function DataController() {
   const cableLoss = InputController("Perda no cabeamento [Db/m]")
   const cableeInMeters = InputController("Cumprimento do cabo [m]")
   const gainAntenaA = InputController("Ganho da antena A [Dbi]")
-  const gainAntenaB = InputController("Ganho da antena A [Dbi]")
+  const gainAntenaB = InputController("Ganho da antena B [Dbi]")
   const interferenceLoss = InputController("Perda por interferencia [Db]")
   
 
@@ -42,6 +42,14 @@ export default function DataController() {
     generateGraphButton,
     mapController,
     frequency,
-    kFactor
+    kFactor,
+
+    signalPower,
+    connectoLoss,
+    cableLoss,
+    cableeInMeters,
+    gainAntenaA,
+    gainAntenaB,
+    interferenceLoss
   }
 }
