@@ -36,6 +36,69 @@ export default function Graph({ naturalPath, straightLine, topFresnelElipsoid, b
 
   const labels = naturalPath.map((_, index) => index);
 
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: "Distância ao longo do perfil (km)",
+          font: {
+            size: 14,
+            weight: "bold",
+          },
+        },
+
+        ticks: {
+          // Formata os valores do eixo X
+          callback: (value: number) => {
+            return `${value * 0.5} km`;
+          },
+
+          maxRotation: 0,
+          minRotation: 0,
+          autoSkip: true,
+          maxTicksLimit: 10,
+        },
+      },
+
+      y: {
+        title: {
+          display: true,
+          text: "Elevação (m)",
+          font: {
+            size: 14,
+            weight: "bold",
+          },
+        },
+
+        ticks: {
+          // Ex: arredondar e adicionar unidade
+          callback: (value: number) => {
+            return `${Math.round(value)} m`;
+          },
+        },
+      },
+    },
+
+    plugins: {
+      legend: {
+        position: "top",
+      },
+      tooltip: {
+        callbacks: {
+          label: (context: any) => {
+            return `${context.dataset.label}: ${context.parsed.y.toFixed(
+              2
+            )} m`;
+          },
+        },
+      },
+    },
+  };
+
   const data = {
     labels,
     datasets: [
@@ -75,8 +138,8 @@ export default function Graph({ naturalPath, straightLine, topFresnelElipsoid, b
   };
   
   return (
-    <div style={{ width: "100%", backgroundColor: 'pink' }}>
-      <Line data={data} />
+    <div style={{ width: "100%", backgroundColor: 'pink', height: '100%' }}>
+      <Line data={data} options={options} />
     </div>
   );
 }

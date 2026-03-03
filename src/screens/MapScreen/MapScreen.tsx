@@ -35,6 +35,16 @@ export default function MapScreen(): React.ReactElement {
         <div className="input-grid-heigth">
           <Input controller={dataController.twoerBHeight} />
         </div>
+        <div className="input-grid">
+          <Input controller={dataController.towerAInput} />
+        </div>
+        <div className="input-grid">
+          <Input controller={dataController.frequency} />
+        </div>
+        <div className="input-grid">
+          <Input controller={dataController.kFactor} />
+        </div>
+
 
         <div className="button-grid">
          <Button controller={dataController.generateGraphButton} />

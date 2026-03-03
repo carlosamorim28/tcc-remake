@@ -1,23 +1,39 @@
 .container {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
+  background-color: yellow;
+  height: 100%;
+  padding: 0px 2rem;
+}
+
+.container-padding {
+  margin: 2rem;
+  height: 100%;
+  width: 100%;
+  grid-column: span 12;
 }
 
 .active-collumn {
   display: grid;
-  height: fit-content;
+  height: 100px;
   grid-template-columns: repeat(4, 1fr);
   grid-column: span 4;
   background-color: red;
   gap: 4px;
+  height: fit-content;
+  max-height: 100%;
+  /* height: max-content; */
+  overflow: scroll;
 }
 
 .input-grid{
+  height: fit-content;
   grid-column: span 3;
   /* background-color: blueviolet; */
 }
 
 .input-grid-heigth{
+  height: fit-content;
   grid-column: span 1;
   /* background-color: blueviolet; */
 }
@@ -34,10 +50,11 @@
 }
 
 .map-contianer{
-  height: 100vh;
+  height: 100%;
 }
 
 .graph-container{
   grid-column: span 4;
+  height: 300px;
   background-color: yellow;
 }

@@ -303,7 +303,7 @@ export default function MapController(): MapControllerInterface {
 
     const reflectedPointIndex = selectPointIndex(d1! * 1000)
     const part1RelfextRay: LatLng[] = generateSightLineWithParams(originPointNoObstructed, elevationPath[reflectedPointIndex], reflectedPointIndex)
-    const part2RelfextRay: LatLng[] = generateSightLineWithParams(elevationPath[reflectedPointIndex+1], destinationPointNoObstructed, elevationPath.length - reflectedPointIndex)
+    const part2RelfextRay: LatLng[] = generateSightLineWithParams(elevationPath[reflectedPointIndex], destinationPointNoObstructed, elevationPath.length - reflectedPointIndex)
     setReflexiveRay([...part1RelfextRay, ...part2RelfextRay])
 
     function selectPointIndex(testedDistance: number): number {

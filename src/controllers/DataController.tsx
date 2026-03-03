@@ -10,6 +10,17 @@ export default function DataController() {
   const twoerAHeight = InputController("Altura torre A", true)
   const twoerBHeight = InputController('Altura torre B', true)
   const adtionalHeight = InputController("Altura adicional")
+  const frequency = InputController("Frequencia [GHz]")
+  const kFactor = InputController("Fator K0,1%")
+
+  const signalPower = InputController("Potência do Sinal [DBi]")
+  const connectoLoss = InputController("Perda por connecto [Db]")
+  const cableLoss = InputController("Perda no cabeamento [Db/m]")
+  const cableeInMeters = InputController("Cumprimento do cabo [m]")
+  const gainAntenaA = InputController("Ganho da antena A [Dbi]")
+  const gainAntenaB = InputController("Ganho da antena A [Dbi]")
+  const interferenceLoss = InputController("Perda por interferencia [Db]")
+  
 
   const generateGraphButton = ButtonContoller("Gerar Gráfico", () =>{console.log("teste")})
   const mapController = MapController()
@@ -29,6 +40,8 @@ export default function DataController() {
     twoerBHeight,
     adtionalHeight,
     generateGraphButton,
-    mapController
+    mapController,
+    frequency,
+    kFactor
   }
 }

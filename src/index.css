@@ -5,6 +5,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
+  height: 100%;
   /* background-color: #242424; */
 
   /* font-synthesis: none;
@@ -16,7 +17,8 @@
 body {
   margin: 0;
   min-width: 320px;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 @media (prefers-color-scheme: light) {
