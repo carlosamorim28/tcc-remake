@@ -138,7 +138,7 @@ export default function Graph({ naturalPath, straightLine, topFresnelElipsoid, b
   };
   
   return (
-    <div style={{ width: "100%", backgroundColor: 'pink', height: '100%' }}>
+    <div style={{ width: "100%", background: "#FFF", height: '100%' }}>
       <Line data={data} options={options} />
     </div>
   );

@@ -1,3 +1,4 @@
+import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
 import type DataController from "../../../controllers/DataController";
 import './PowerBalanceForm.css'
@@ -7,6 +8,9 @@ export default function PowerBalanceForm({dataController}: {dataController: Retu
     <div className="active-collumn">
       <div className="power-balance-form-container-input-full-width">
         <Input controller={dataController.signalPower} />
+      </div>
+      <div className="power-balance-form-container-input-full-width">
+        <Input controller={dataController.receptionThreshold} />
       </div>
       <div className="power-balance-form-container-input-2-collumns">
         <Input controller={dataController.gainAntenaA} />
@@ -22,6 +26,13 @@ export default function PowerBalanceForm({dataController}: {dataController: Retu
       </div>
       <div className="power-balance-form-container-input-full-width">
         <Input controller={dataController.connectoLoss} />
+      </div>
+      <div className="power-balance-form-container-input-full-width">
+        <Input controller={dataController.interferenceLoss} />
+      </div>
+
+      <div className="power-balance-form-container-input-full-width">
+        <Button controller={dataController.btnCalculateSafeMargin} />
       </div>
       
     </div>

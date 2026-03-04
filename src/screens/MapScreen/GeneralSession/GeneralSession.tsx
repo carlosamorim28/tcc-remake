@@ -20,9 +20,6 @@ export default function GeneralSession ({dataController}: {dataController: Retur
           <Input controller={dataController.twoerBHeight} />
         </div>
         <div className="input-grid">
-          <Input controller={dataController.towerAInput} />
-        </div>
-        <div className="input-grid">
           <Input controller={dataController.frequency} />
         </div>
         <div className="input-grid">

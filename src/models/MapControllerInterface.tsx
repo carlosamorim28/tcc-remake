@@ -28,5 +28,8 @@ export default interface MapControllerInterface {
   setAzimuthInDegrees: (value: AzimuthInterface) => void
   calculateNoObstructedValues: (frequence: number, setheightTwoerA: (value: string) => void, setheightTwoerB: (value: string) => void) => void
   calculateReflexiveRay: (kFactor: number, precision: number) => void
+  calculateAzimuthInDegrees: () => void
+  genereteFresnelElipsoid: () => void
+  generateSightLine: () => void
   
 }

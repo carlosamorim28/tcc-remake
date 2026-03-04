@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import type LatLng from "../models/LatLng"
 import type MapControllerInterface from "../models/MapControllerInterface"
 import type AzimuthInterface from "../models/Azimith"
@@ -178,6 +178,7 @@ export default function MapController(): MapControllerInterface {
           continue
         } else {
           maxInterferencePoint = elevationPath[i]
+          console.log('maxInterferencePoint', maxInterferencePoint)
           sightLineIsHigher = false
         }
       }
@@ -193,8 +194,8 @@ export default function MapController(): MapControllerInterface {
   }
 
   function calculateFresnelRatio(originPoint: LatLng, interestPoint: LatLng, destinationPoint: LatLng, frequence: number): number {
-    const totalDistance = calcularDistanciaHaversine(originPoint.lat, originPoint.lng, destinationPoint.lat, destinationPoint.lng)
-    const distance1 = calcularDistanciaHaversine(originPoint.lat, originPoint.lng, interestPoint.lat, interestPoint.lng)
+    const totalDistance = calcularDistanciaHaversine(originPoint.lat, originPoint.lng, destinationPoint.lat, destinationPoint.lng) / 1000
+    const distance1 = calcularDistanciaHaversine(originPoint.lat, originPoint.lng, interestPoint.lat, interestPoint.lng) / 1000
     const distance2 = totalDistance - distance1
     const distance1Xdistance2 = distance1 * distance2
     const totalDistanceXfrequece = totalDistance * frequence
@@ -319,18 +320,7 @@ export default function MapController(): MapControllerInterface {
       return actualIndex
     }
   }
-
-  useEffect(() => {
-    calculateAzimuthInDegrees()
-  },[originPoint, destinationPoint])
-
-  useEffect(()=>{
-    generateSightLine()
-  },[elevationPath])
-
-  useEffect(()=>{
-    genereteFresnelElipsoid()
-  },[sightLine])
+  
 
   return {
     destinationPoint,
@@ -358,6 +348,9 @@ export default function MapController(): MapControllerInterface {
     setSightLine,
     setAzimuthInDegrees,
     calculateNoObstructedValues,
-    calculateReflexiveRay
+    calculateReflexiveRay,
+    calculateAzimuthInDegrees,
+    genereteFresnelElipsoid,
+    generateSightLine
   }
 }

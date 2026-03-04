@@ -5,6 +5,7 @@ import Map from "../../components/Map/Map"
 import { Menu } from "../../components/Menu/Menu"
 import DataController from "../../controllers/DataController"
 import MenuController from "../../controllers/MenuController"
+import DataSession from "./DataSession/DataSession"
 import GeneralSession from "./GeneralSession/GeneralSession"
 import "./MapScreen.css"
 import PowerBalanceForm from "./PowerBalance/PowerBalanceForm"
@@ -21,6 +22,10 @@ export default function MapScreen(): React.ReactElement {
           <Menu controller={menuController} />
           {menuController.menuOptions[0].isSelected && (
             <GeneralSession dataController={dataController} />
+          )}
+
+          {menuController.menuOptions[1].isSelected && (
+            <DataSession dataController={dataController} />
           )}
 
           {menuController.menuOptions[2].isSelected && (

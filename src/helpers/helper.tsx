@@ -15,7 +15,7 @@ export function calcularDistanciaHaversine(
       Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const distancia = R * c; // Distância em km
-  return distancia;
+  return distancia * 1000;
 }
 
 export function parseStringToRectangularCoordinates(
@@ -35,4 +35,20 @@ export function parseStringToRectangularCoordinates(
     return null;
 
   return { latitude, longitude };
+}
+
+export function calculateFreeSpaceAtenuation(
+  distanceKm: number,
+  frequencyGHz: number
+): number {
+  if (distanceKm <= 0 || frequencyGHz <= 0) {
+    throw new Error("Distância e frequência devem ser maiores que zero.");
+  }
+
+  const fspl =
+    20 * Math.log10(distanceKm) +
+    20 * Math.log10(frequencyGHz) +
+    92.45; // constante para km + GHz
+
+  return fspl;
 }
