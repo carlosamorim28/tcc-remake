@@ -8,10 +8,12 @@
 .input-container {
   width: 100%;
   display: flex;
+  gap: 8px;
 }
 
 .vertical{
   flex-direction: column;
+  gap: 0px;
 }
 
 .label {

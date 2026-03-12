@@ -2,7 +2,7 @@ import { useState } from "react"
 import type LatLng from "../models/LatLng"
 import type MapControllerInterface from "../models/MapControllerInterface"
 import type AzimuthInterface from "../models/Azimith"
-import { calcularDistanciaHaversine } from "../helpers/helper"
+import { calcularDistanciaHaversine, calculateDiagonalDistance } from "../helpers/helper"
 
 export default function MapController(): MapControllerInterface {
   const [originPoint, setOriginalPoint] =  useState<LatLng>({lat:0, lng: 0, elevation: 0})
@@ -26,6 +26,7 @@ export default function MapController(): MapControllerInterface {
   const [maxInterferencePoint, setMaxInterferencePoint] = useState<LatLng>({elevation: 0, lat: 0, lng: 0})
   const [maxInterferencePointDistance, setMaxInterferencePointDistance] = useState<number>(0)
   const [reflexiveRay, setReflexiveRay] = useState<LatLng[]>([])
+  const [reflexivePoint, setRefleexivePoint] = useState<LatLng>({lat:0, lng: 0, elevation: 0})
   const [azimuthInDegrees, setAzimuthInDegrees] = useState<AzimuthInterface>({normal: 0, inverse: 0})
 
   function calculateAzimuthInDegrees (): void {
@@ -305,6 +306,7 @@ export default function MapController(): MapControllerInterface {
     const reflectedPointIndex = selectPointIndex(d1! * 1000)
     const part1RelfextRay: LatLng[] = generateSightLineWithParams(originPointNoObstructed, elevationPath[reflectedPointIndex], reflectedPointIndex)
     const part2RelfextRay: LatLng[] = generateSightLineWithParams(elevationPath[reflectedPointIndex], destinationPointNoObstructed, elevationPath.length - reflectedPointIndex)
+    setRefleexivePoint(elevationPath[reflectedPointIndex])
     setReflexiveRay([...part1RelfextRay, ...part2RelfextRay])
 
     function selectPointIndex(testedDistance: number): number {
@@ -321,6 +323,71 @@ export default function MapController(): MapControllerInterface {
     }
   }
   
+
+  function calculateRoughness() {
+    const elevationPathToCalculate = {...elevationPath}
+    const originPointToCalculate = {...originPoint}
+
+    function sumDiXHi(){
+      let result = 0
+      elevationPathToCalculate.map((element) => {
+        result += element.elevation * calcularDistanciaHaversine(originPointToCalculate.lat, originPointToCalculate.lng, element.lat, element.lng)
+      })
+      return result
+    }
+
+    function sumDI(){
+      let result = 0
+      elevationPathToCalculate.map((element)=>{
+        result += calcularDistanciaHaversine(originPointToCalculate.lat, originPointToCalculate.lng, element.lat, element.lng)
+      })
+      return result
+    }
+    function sumDISqr(){
+      let result = 0
+      elevationPathToCalculate.map((element)=>{
+        result += Math.pow(calcularDistanciaHaversine(originPointToCalculate.lat, originPointToCalculate.lng, element.lat, element.lng), 2)
+      })
+      return result
+    }
+    function sumHi(){
+      let result = 0
+      elevationPathToCalculate.map((element)=>{
+        result += element.elevation
+      })
+      return result
+    }
+    const c2Numerador = sumDiXHi() - (sumDI()*sumHi() / elevationPathToCalculate.length)
+    const c2Denominador = sumDISqr() - (Math.pow(sumDI(), 2) / elevationPathToCalculate.length)
+    const c2 = c2Numerador / c2Denominador
+    const c1 = (sumHi() / elevationPathToCalculate.length) - c2*(sumDI() / elevationPath.length)
+    const y = elevationPathToCalculate.map((element) => { return c1+c2 * calcularDistanciaHaversine(originPointToCalculate.lat, originPointToCalculate.lng, element.lat, element.lng) })
+    function sumHiSubYi(){
+      let result = 0
+      y.map((yAtual, index) =>{
+        result += Math.pow(elevationPathToCalculate[index].elevation - yAtual, 2)
+      })
+      return result
+    }
+    const s2 = Math.sqrt(sumHiSubYi()/(elevationPathToCalculate.length - 1))
+    const yMedio = sumHi() / elevationPathToCalculate.length
+    function sumHiSubYMedio(){
+      let result = 0
+      elevationPathToCalculate.map((element)=>{
+        result += Math.pow(element.elevation - yMedio, 2)
+      })
+      return result
+    }
+    const s1 = Math.sqrt(sumHiSubYMedio() / (elevationPathToCalculate.length - 1) )
+    const si = Math.sqrt(s1 * s2)
+    const b = Math.pow(si / 15, -1.3)
+    return b
+  }
+
+  function calculateRoughnessAtPoint(frequency: number){
+    const angle = Math.acos(calcularDistanciaHaversine(originPoint.lat, originPoint.lng, reflexivePoint.lat, reflexivePoint.lng) / calculateDiagonalDistance(originPoint, reflexivePoint));
+    return 300 / ( 16 * frequency * 1000 * angle)
+  }
 
   return {
     destinationPoint,

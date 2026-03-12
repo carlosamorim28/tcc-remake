@@ -30,6 +30,10 @@ export default function GeneralSession ({dataController}: {dataController: Retur
         <div className="button-grid">
          <Button controller={dataController.generateGraphButton} />
         </div>
+        <div className="button-grid">
+         <Button controller={dataController.btnAttFresnelElipsoid} />
+        </div>
+
         <div className="graph-container" >
           <Graph naturalPath={dataController.mapController.elevationPath} straightLine={dataController.mapController.sightLine} bottomFresnelElipsoid={dataController.mapController.bottomFresnelElipsoid} topFresnelElipsoid={dataController.mapController.topFresnelElipsoid} reflexiveRay={[]} />
         </div>

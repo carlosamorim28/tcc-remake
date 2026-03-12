@@ -1,4 +1,5 @@
 import Button from "../../../components/Button/Button";
+import DinamicGroupInput from "../../../components/DinamicGroupInput/DinamicGroupInput";
 import Input from "../../../components/Input/Input";
 import type DataController from "../../../controllers/DataController";
 import './PowerBalanceForm.css'
@@ -27,8 +28,9 @@ export default function PowerBalanceForm({dataController}: {dataController: Retu
       <div className="power-balance-form-container-input-full-width">
         <Input controller={dataController.connectoLoss} />
       </div>
+
       <div className="power-balance-form-container-input-full-width">
-        <Input controller={dataController.interferenceLoss} />
+        <DinamicGroupInput inputsInterferecePower={dataController.inputsInterferecePower} inputsNumberController={dataController.inputsNumberController} />
       </div>
 
       <div className="power-balance-form-container-input-full-width">
