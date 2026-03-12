@@ -56,11 +56,9 @@ export default function DataController() {
       somaPotenciasInterferentes += value
     })
     const itDb = 10 * Math.log10(somaPotenciasInterferentes) 
-    console.log('itDb', itDb)
     const diDb = 10 * Math.log10(Math.pow(10,-9.5) + Math.pow(10, itDb/10)) + 95
     console.log('diDb', diDb)
     const margin = PNR - Number(receptionThreshold.value) -diDb
-    console.log( 'margin', margin)
     setMargem(`${margin}`)
   }
 
@@ -81,7 +79,7 @@ export default function DataController() {
 
   useEffect(()=>{
     getMaxInterferencePoint()
-    genereteFresnelElipsoid()
+    genereteFresnelElipsoid(Number(frequency.value))
   },[sightLine])
   useEffect(()=>{
     calculateNoObstructedValues(Number(frequency.value), twoerAHeight.setValue, twoerBHeight.setValue)

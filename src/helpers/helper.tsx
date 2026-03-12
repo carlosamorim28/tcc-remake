@@ -1,3 +1,5 @@
+import type LatLng from "../models/LatLng";
+
 export function calcularDistanciaHaversine(
   lat1: number,
   lon1: number,
@@ -46,9 +48,15 @@ export function calculateFreeSpaceAtenuation(
   }
 
   const fspl =
-    20 * Math.log10(distanceKm) +
-    20 * Math.log10(frequencyGHz) +
+    20 * Math.log10(distanceKm * frequencyGHz ) +
     92.45; // constante para km + GHz
 
   return fspl;
+}
+
+export function calculateDiagonalDistance(originPoint: LatLng, destinationPoint: LatLng): number{
+  const horizontalDistance = calcularDistanciaHaversine(originPoint.lat, originPoint.lng, destinationPoint.lat, destinationPoint.lng);
+  const verticalDistance = Math.abs(originPoint.elevation - destinationPoint.elevation)
+  const diagonalDistance = Math.sqrt(Math.pow(horizontalDistance, 2) + Math.pow(verticalDistance, 2))
+  return diagonalDistance
 }
