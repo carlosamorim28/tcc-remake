@@ -15,23 +15,25 @@ export default function DataController() {
   const frequency = InputController("Frequencia [GHz]")
   const kFactor = InputController("Fator K0,1%")
 
-  const signalPower = InputController("Potência de Tx [DBm]")
-  const receptionThreshold = InputController("Limiar de Rx [Dbm]")
-  const connectoLoss = InputController("Perda por conector [Db]")
-  const cableLoss = InputController("Perda no Guia de onda[Db/m]")
-  const cableeInMeters = InputController("Cumprimento do cabo [m]")
-  const gainAntenaA = InputController("Ganho da antena A [Dbi]")
-  const gainAntenaB = InputController("Ganho da antena B [Dbi]")
+  const signalPower = InputController("Potência de Tx [dBm]")
+  const receptionThreshold = InputController("Limiar de Rx [dbm]")
+  const connectoLoss = InputController("Perda por conector [dB]")
+  const cableLoss = InputController("Perda no Guia de onda[dB/m]")
+  const cableeInMeters = InputController("Comprimento do cabo [m]")
+  const gainAntenaA = InputController("Ganho da antena A [dBi]")
+  const gainAntenaB = InputController("Ganho da antena B [dBi]")
+
+  const [isFirst, setIsFirst] = useState<boolean>(true)
 
 
   // const interferenceLoss = InputController("Ptências interferentes em Dbm ex: -98, -90, -99")
   const inputsInterferenceNumberController = InputController('Quantidade de Potências interferentes')
-  const [inputsInterferecePower, setInputsInterferecePower] = useState<InputControllerInterface[]>([InputController('Potência [Db]', false), InputController('Potência [Db]', false), InputController('Potência [Db]', false), InputController('Potência [Db]', false), InputController('Potência [Db]', false), InputController('Potência [Db]', false), InputController('Potência [Db]', false), InputController('Potência [Db]', false), InputController('Potência [Db]', false), InputController('Potência [Db]', false)])
+  const [inputsInterferecePower, setInputsInterferecePower] = useState<InputControllerInterface[]>([InputController('Potência [dBm]', false), InputController('Potência [dBm]', false), InputController('Potência [dBm]', false), InputController('Potência [dBm]', false), InputController('Potência [dBm]', false), InputController('Potência [dBm]', false), InputController('Potência [dBm]', false), InputController('Potência [dBm]', false), InputController('Potência [dBm]', false), InputController('Potência [dBm]', false)])
   
   const [margem, setMargem] = useState('')
   
   const mapController =  MapController()
-  const {azimuthInDegrees, bottomFresnelElipsoid, bottomFresnelElipsoidNoObstructed, calculateNoObstructedValues, calculateReflexiveRay, destinationPoint, destinationPointNoObstructed, distanceInMeters, elevationPath, fresnalElipsoidRatio,getMaxInterferencePoint, maxInterferencePoint,maxInterferencePointDistance, originPoint, originPointNoObstructed, reflexiveRay, setAzimuthInDegrees,setDestinationPoint, setDistanceInMeters,setElevationPath,setOriginalPoint,setSightLine, sightLine,sightLineNoObstructed,topFresnelElipsoid, topFresnelElipsoidNoObstructed, calculateAzimuthInDegrees, generateSightLine, genereteFresnelElipsoid } = mapController
+  const {azimuthInDegrees, bottomFresnelElipsoid, bottomFresnelElipsoidNoObstructed, calculateNoObstructedValues, calculateReflexiveRay, destinationPoint, destinationPointNoObstructed, distanceInMeters, elevationPath, fresnalElipsoidRatio,getMaxInterferencePoint, maxInterferencePoint,maxInterferencePointDistance, originPoint, originPointNoObstructed, reflexiveRay, setAzimuthInDegrees,setDestinationPoint, setDistanceInMeters,setElevationPath,setOriginalPoint,setSightLine, sightLine,sightLineNoObstructed,topFresnelElipsoid, topFresnelElipsoidNoObstructed, calculateAzimuthInDegrees, generateSightLine, genereteFresnelElipsoid, calculateRoughness, calculateRoughnessAtPoint, midRoughness, roughnessAtPoint, setMidcRoughness, setRoughnessAtPoint } = mapController
   
   const generateGraphButton = ButtonContoller("Gerar gráfico Manualmente", () =>{
     const latLngA = towerAInput.value.split(',')
@@ -101,6 +103,15 @@ export default function DataController() {
     calculateReflexiveRay(Number(kFactor.value), Math.pow(10, -9))
   }, [destinationPointNoObstructed])
 
+  useEffect(() => {
+    if(isFirst) {
+      setIsFirst(false)
+      return
+    }
+    mapController.calculateRoughness()
+    mapController.calculateRoughnessAtPoint(Number(frequency))
+  },[reflexiveRay])
+
   return{
     towerAInput,
     towerBInput,
@@ -122,6 +133,9 @@ export default function DataController() {
     gainAntenaA,
     gainAntenaB,
     btnCalculateSafeMargin,
-    btnAttFresnelElipsoid
+    btnAttFresnelElipsoid,
+    roughnessAtPoint,
+    midRoughness
+
   }
 }

@@ -55,8 +55,42 @@ export function calculateFreeSpaceAtenuation(
 }
 
 export function calculateDiagonalDistance(originPoint: LatLng, destinationPoint: LatLng): number{
-  const horizontalDistance = calcularDistanciaHaversine(originPoint.lat, originPoint.lng, destinationPoint.lat, destinationPoint.lng);
-  const verticalDistance = Math.abs(originPoint.elevation - destinationPoint.elevation)
-  const diagonalDistance = Math.sqrt(Math.pow(horizontalDistance, 2) + Math.pow(verticalDistance, 2))
-  return diagonalDistance
+  // const horizontalDistance = calcularDistanciaHaversine(originPoint.lat, originPoint.lng, destinationPoint.lat, destinationPoint.lng);
+  // const verticalDistance = Math.abs(originPoint.elevation - destinationPoint.elevation)
+  // const diagonalDistance = Math.sqrt(Math.pow(horizontalDistance, 2) + Math.pow(verticalDistance, 2))
+
+    const R = 6371000; // metros
+
+    function toRad(graus: number) {
+      return graus * (Math.PI / 180);
+    }
+
+    const lat1 = toRad(originPoint.lat);
+    const lon1 = toRad(originPoint.lng);
+    const lat2 = toRad(destinationPoint.lat);
+    const lon2 = toRad(destinationPoint.lng);
+
+    const r1 = R + originPoint.elevation;
+    const r2 = R + destinationPoint.elevation;
+
+    const x1 = r1 * Math.cos(lat1) * Math.cos(lon1);
+    const y1 = r1 * Math.cos(lat1) * Math.sin(lon1);
+    const z1 = r1 * Math.sin(lat1);
+
+    const x2 = r2 * Math.cos(lat2) * Math.cos(lon2);
+    const y2 = r2 * Math.cos(lat2) * Math.sin(lon2);
+    const z2 = r2 * Math.sin(lat2);
+
+    const d = Math.sqrt(
+      (x2 - x1) ** 2 +
+      (y2 - y1) ** 2 +
+      (z2 - z1) ** 2
+    );
+
+  return d; // metros
+
+
+
+
+  // return diagonalDistance
 }

@@ -9,6 +9,7 @@ import DataSession from "./DataSession/DataSession"
 import GeneralSession from "./GeneralSession/GeneralSession"
 import "./MapScreen.css"
 import PowerBalanceForm from "./PowerBalance/PowerBalanceForm"
+import RoughnessSession from "./RoughnessSession/RoughnessSession"
 export default function MapScreen(): React.ReactElement {
 
   const dataController = DataController()
@@ -27,8 +28,10 @@ export default function MapScreen(): React.ReactElement {
           {menuController.menuOptions[1].isSelected && (
             <DataSession dataController={dataController} />
           )}
-
           {menuController.menuOptions[2].isSelected && (
+            <RoughnessSession dataController={dataController} />
+          )}
+          {menuController.menuOptions[3].isSelected && (
             <PowerBalanceForm dataController={dataController} />
           )}
         </div>

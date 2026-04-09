@@ -31,5 +31,15 @@ export default interface MapControllerInterface {
   calculateAzimuthInDegrees: () => void
   genereteFresnelElipsoid: (frequency?: number) => void
   generateSightLine: () => void
+  midRoughness: number, 
+  setMidRoughness: (value: number) => void,
+  roughnessAtPoint: number, 
+  setRoughnessAtPoint: (value: number) => void
+  calculateRoughness: () => void
+  calculateRoughnessAtPoint: (frequency: number) => void
+  reflexivePoint: LatLng
+  reflexiveAngle: number
+  reflexivePointIndex: number
+  calculateReflexiveArea: () => number
   
 }

@@ -27,7 +27,11 @@ export default function MapController(): MapControllerInterface {
   const [maxInterferencePointDistance, setMaxInterferencePointDistance] = useState<number>(0)
   const [reflexiveRay, setReflexiveRay] = useState<LatLng[]>([])
   const [reflexivePoint, setRefleexivePoint] = useState<LatLng>({lat:0, lng: 0, elevation: 0})
+  const [reflexivePointIndex, setReflexivePointIndex] = useState<number>(0)
   const [azimuthInDegrees, setAzimuthInDegrees] = useState<AzimuthInterface>({normal: 0, inverse: 0})
+  const [reflexiveAngle, setReflexiveAngle] = useState<number>(0)
+  const [midRoughness, setMidRoughness] = useState<number>(0)
+  const [roughnessAtPoint, setRoughnessAtPoint] = useState<number>(0)
 
   function calculateAzimuthInDegrees (): void {
   if(originPoint.lat === 0 || destinationPoint.lat === 0) return
@@ -307,6 +311,7 @@ export default function MapController(): MapControllerInterface {
     const part1RelfextRay: LatLng[] = generateSightLineWithParams(originPointNoObstructed, elevationPath[reflectedPointIndex], reflectedPointIndex)
     const part2RelfextRay: LatLng[] = generateSightLineWithParams(elevationPath[reflectedPointIndex], destinationPointNoObstructed, elevationPath.length - reflectedPointIndex)
     setRefleexivePoint(elevationPath[reflectedPointIndex])
+    setReflexivePointIndex(reflectedPointIndex)
     setReflexiveRay([...part1RelfextRay, ...part2RelfextRay])
 
     function selectPointIndex(testedDistance: number): number {
@@ -325,7 +330,7 @@ export default function MapController(): MapControllerInterface {
   
 
   function calculateRoughness() {
-    const elevationPathToCalculate = {...elevationPath}
+    const elevationPathToCalculate = [...elevationPath]
     const originPointToCalculate = {...originPoint}
 
     function sumDiXHi(){
@@ -381,12 +386,24 @@ export default function MapController(): MapControllerInterface {
     const s1 = Math.sqrt(sumHiSubYMedio() / (elevationPathToCalculate.length - 1) )
     const si = Math.sqrt(s1 * s2)
     const b = Math.pow(si / 15, -1.3)
-    return b
+    setMidRoughness(b)
+    // return b
   }
 
   function calculateRoughnessAtPoint(frequency: number){
-    const angle = Math.acos(calcularDistanciaHaversine(originPoint.lat, originPoint.lng, reflexivePoint.lat, reflexivePoint.lng) / calculateDiagonalDistance(originPoint, reflexivePoint));
-    return 300 / ( 16 * frequency * 1000 * angle)
+    // const angle = Math.acos(calcularDistanciaHaversine(originPoint.lat, originPoint.lng, reflexivePoint.lat, reflexivePoint.lng) / calculateDiagonalDistance(originPoint, reflexivePoint));
+    const angle = Math.atan2(Math.abs(originPointNoObstructed.elevation - reflexivePoint.elevation), calcularDistanciaHaversine(originPointNoObstructed.lat, originPointNoObstructed.lng, reflexivePoint.lat, reflexivePoint.lng))
+    console.log('comparativo de distancias', Math.abs(originPointNoObstructed.elevation - reflexivePoint.elevation), calcularDistanciaHaversine(originPointNoObstructed.lat, originPointNoObstructed.lng, reflexivePoint.lat, reflexivePoint.lng), angle)
+
+    setReflexiveAngle(angle)
+    const value = 300 / ( 16 * frequency * 1000 * angle)
+    setRoughnessAtPoint(value) 
+  }
+
+  function calculateReflexiveArea(): number{
+    const fresnelRatioReflexivePoint = Math.abs(sightLineNoObstructed[reflexivePointIndex].elevation - topFresnelElipsoidNoObstructed[reflexivePointIndex].elevation)
+    const a = Math.pow(fresnelRatioReflexivePoint, 2) * (Math.PI / reflexiveAngle) 
+    return a
   }
 
   return {
@@ -418,6 +435,16 @@ export default function MapController(): MapControllerInterface {
     calculateReflexiveRay,
     calculateAzimuthInDegrees,
     genereteFresnelElipsoid,
-    generateSightLine
+    generateSightLine,
+    midRoughness, 
+    setMidRoughness,
+    roughnessAtPoint, 
+    setRoughnessAtPoint,
+    calculateRoughness,
+    calculateRoughnessAtPoint,
+    reflexivePoint,
+    reflexiveAngle,
+    reflexivePointIndex,
+    calculateReflexiveArea
   }
 }
