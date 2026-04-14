@@ -32,6 +32,7 @@ export default function MapController(): MapControllerInterface {
   const [reflexiveAngle, setReflexiveAngle] = useState<number>(0)
   const [midRoughness, setMidRoughness] = useState<number>(0)
   const [roughnessAtPoint, setRoughnessAtPoint] = useState<number>(0)
+  const [maxScaleValue, setMaxScaleValue] = useState<number>(0)
 
   function calculateAzimuthInDegrees (): void {
   if(originPoint.lat === 0 || destinationPoint.lat === 0) return
@@ -445,6 +446,8 @@ export default function MapController(): MapControllerInterface {
     reflexivePoint,
     reflexiveAngle,
     reflexivePointIndex,
-    calculateReflexiveArea
+    calculateReflexiveArea,
+    maxScaleValue, 
+    setMaxScaleValue
   }
 }

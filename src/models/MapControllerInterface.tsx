@@ -41,5 +41,6 @@ export default interface MapControllerInterface {
   reflexiveAngle: number
   reflexivePointIndex: number
   calculateReflexiveArea: () => number
+  maxScaleValue: number, setMaxScaleValue: (value: number) => void
   
 }

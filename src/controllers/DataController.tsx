@@ -111,7 +111,15 @@ export default function DataController() {
     mapController.calculateRoughness()
     mapController.calculateRoughnessAtPoint(Number(frequency))
   },[reflexiveRay])
-
+  useEffect(() =>{
+    let maxHeight = 0
+    for(const element of topFresnelElipsoidNoObstructed){
+      if(element.elevation > maxHeight){
+        maxHeight = element.elevation
+      }
+    }
+    mapController.setMaxScaleValue(maxHeight + 10)
+  }, [topFresnelElipsoidNoObstructed])
   return{
     towerAInput,
     towerBInput,

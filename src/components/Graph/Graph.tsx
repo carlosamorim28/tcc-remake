@@ -30,9 +30,10 @@ type Props = {
   topFresnelElipsoid: GeoPoint[];
   bottomFresnelElipsoid: GeoPoint[];
   reflexiveRay: GeoPoint[]
+  maxYScale?: number
 };
 
-export default function Graph({ naturalPath, straightLine, topFresnelElipsoid, bottomFresnelElipsoid, reflexiveRay }: Props) {
+export default function Graph({ naturalPath, straightLine, topFresnelElipsoid, bottomFresnelElipsoid, reflexiveRay,  maxYScale }: Props) {
 
   const labels = naturalPath.map((_, index) => index);
 
@@ -50,6 +51,7 @@ export default function Graph({ naturalPath, straightLine, topFresnelElipsoid, b
             weight: "bold",
           },
         },
+        
 
         ticks: {
           // Formata os valores do eixo X
@@ -73,6 +75,8 @@ export default function Graph({ naturalPath, straightLine, topFresnelElipsoid, b
             weight: "bold",
           },
         },
+        min: 0,
+        max: maxYScale,  
 
         ticks: {
           // Ex: arredondar e adicionar unidade
@@ -86,6 +90,7 @@ export default function Graph({ naturalPath, straightLine, topFresnelElipsoid, b
     plugins: {
       legend: {
         position: "top",
+        
       },
       tooltip: {
         callbacks: {

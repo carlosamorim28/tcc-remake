@@ -35,11 +35,11 @@ export default function GeneralSession ({dataController}: {dataController: Retur
         </div>
 
         <div className="graph-container" >
-          <Graph naturalPath={dataController.mapController.elevationPath} straightLine={dataController.mapController.sightLine} bottomFresnelElipsoid={dataController.mapController.bottomFresnelElipsoid} topFresnelElipsoid={dataController.mapController.topFresnelElipsoid} reflexiveRay={[]} />
+          <Graph naturalPath={dataController.mapController.elevationPath} straightLine={dataController.mapController.sightLine} bottomFresnelElipsoid={[]} topFresnelElipsoid={[]} reflexiveRay={[]} maxYScale={dataController.mapController.maxScaleValue}/>
         </div>
 
         <div className="graph-container" >
-          <Graph naturalPath={dataController.mapController.elevationPath} straightLine={dataController.mapController.sightLineNoObstructed} bottomFresnelElipsoid={dataController.mapController.bottomFresnelElipsoidNoObstructed} topFresnelElipsoid={dataController.mapController.topFresnelElipsoidNoObstructed} reflexiveRay={[]} />
+          <Graph naturalPath={dataController.mapController.elevationPath} straightLine={dataController.mapController.sightLineNoObstructed} bottomFresnelElipsoid={[]} topFresnelElipsoid={[]} reflexiveRay={[]} maxYScale={dataController.mapController.maxScaleValue} />
         </div>
     </div>
   )
