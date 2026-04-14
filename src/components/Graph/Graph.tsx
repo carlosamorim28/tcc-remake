@@ -7,6 +7,7 @@ import {
   Tooltip,
   Legend
 } from "chart.js";
+import type { toLineHeight } from "chart.js/helpers";
 import { Line } from "react-chartjs-2";
 
 type GeoPoint = {
@@ -89,6 +90,24 @@ export default function Graph({ naturalPath, straightLine, topFresnelElipsoid, b
 
     plugins: {
       legend: {
+        labels:{
+        boxHeight: 1,
+        padding: 20,
+        font: {
+          size: 13,
+          lineHeight: 1.5, // 🔥 controla o espaçamento vertical do texto
+        },
+        generateLabels: (chart) => {
+          return chart.data.datasets.map((dataset, i) => ({
+            text: dataset.label,
+            strokeStyle: dataset.borderColor,
+            fillStyle: dataset.borderColor, // remove o fundo
+            lineWidth: 2, // espessura da "linha"
+            // hidden: !chart.isDatasetVisible(i),
+            index: i,
+          }));
+        },
+        },
         position: "top",
         
       },
