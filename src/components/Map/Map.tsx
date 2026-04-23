@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import { GoogleMap, LoadScript, Marker, Polyline } from "@react-google-maps/api";
 import type MapControllerInterface from "../../models/MapControllerInterface";
-import { calcularDistanciaHaversine } from "../../helpers/helper";
 
 const containerStyle = {
   width: "100%",
@@ -21,118 +20,7 @@ type LatLng = {
 };
 
 function Map({controller}: {controller: MapControllerInterface}) {
-  const {destinationPoint, originPoint, setDestinationPoint, setDistanceInMeters, setElevationPath, setOriginalPoint, distanceInMeters} = controller
-// useEffect(() => {
-//   setDistanceInMeters(distanceInMeters);
-// }, [distanceInMeters, setDistanceInMeters]);
-  useEffect(()=>{
-    if(destinationPoint.lat && originPoint.lat) {
-      // const distance = google.maps.geometry.spherical.computeDistanceBetween(
-      //   new google.maps.LatLng(originPoint.lat, originPoint.lng),
-      //   new google.maps.LatLng(destinationPoint.lat, destinationPoint.lng)
-      // )
-      const distance = calcularDistanciaHaversine(originPoint.lat, originPoint.lng, destinationPoint.lat, destinationPoint.lng)
-      setDistanceInMeters(distance)
-    }
-
-  },[destinationPoint, originPoint])
-
-
-
-  async function getElevationWithInterval(
-    originPoint: LatLng,
-    destinationPoint: LatLng,
-    intervalMeters = 500
-  ) {
-    const elevator = new google.maps.ElevationService();
-
-    const origin = new google.maps.LatLng(originPoint.lat, originPoint.lng);
-    const destination = new google.maps.LatLng(destinationPoint.lat, destinationPoint.lng);
-
-    const totalDistance =
-      google.maps.geometry.spherical.computeDistanceBetween(origin, destination);
-
-    const totalSamples = Math.ceil(totalDistance / intervalMeters);
-
-    const MAX_SAMPLES = 512;
-
-    // Se estiver dentro do limite, faz direto
-    if (totalSamples <= MAX_SAMPLES) {
-      return requestElevation(origin, destination, totalSamples);
-    }
-
-    // 🔥 Divide em múltiplos segmentos
-    const segmentCount = Math.ceil(totalSamples / MAX_SAMPLES);
-    const results: LatLng[] = [];
-
-    for (let i = 0; i < segmentCount; i++) {
-      const startFraction = i / segmentCount;
-      const endFraction = (i + 1) / segmentCount;
-
-      const segmentStart =
-        google.maps.geometry.spherical.interpolate(origin, destination, startFraction);
-
-      const segmentEnd =
-        google.maps.geometry.spherical.interpolate(origin, destination, endFraction);
-
-      const segmentDistance =
-        google.maps.geometry.spherical.computeDistanceBetween(segmentStart, segmentEnd);
-
-      const segmentSamples = Math.ceil(segmentDistance / intervalMeters);
-
-      const segmentResult = await requestElevation(
-        segmentStart,
-        segmentEnd,
-        segmentSamples
-      );
-
-      // Evita duplicar ponto de junção
-      if (i > 0) segmentResult.shift();
-
-      results.push(...segmentResult);
-    }
-
-    return results;
-  }
-
-  function requestElevation(
-    start: google.maps.LatLng,
-    end: google.maps.LatLng,
-    samples: number
-  ): Promise<LatLng[]> {
-    return new Promise((resolve, reject) => {
-      const elevator = new google.maps.ElevationService();
-
-      elevator.getElevationAlongPath(
-        {
-          path: [start, end],
-          samples: samples,
-        },
-        (results, status) => {
-          if (status === "OK" && results) {
-            resolve(
-              results.map((point) => ({
-                lat: point.location.lat(),
-                lng: point.location.lng(),
-                elevation: point.elevation,
-              }))
-            );
-          } else {
-            reject(status);
-          }
-        }
-      );
-    });
-  }
-
-
-  useEffect(()=>{
-    if(originPoint.lat && destinationPoint.lat){
-    getElevationWithInterval(originPoint, destinationPoint).then((points)=>{
-      setElevationPath(points)
-    })
-  }
-  },[destinationPoint, originPoint])
+  const {destinationPoint, originPoint, setDestinationPoint, setOriginalPoint} = controller
   
   const handleMapClick = useCallback(
     (event: google.maps.MapMouseEvent) => {

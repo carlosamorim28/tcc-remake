@@ -1,10 +1,13 @@
 
 import { useEffect, useState } from "react";
 import ButtonContoller from "./ButtonController";
+import CheckboxController from "./CheckboxController";
 import { InputController } from "./InputController";
 import MapController from "./MapController";
+import MenuController from "./MenuController";
 import { calculateFreeSpaceAtenuation } from "../helpers/helper";
 import type { InputControllerInterface } from "../models/InputController";
+import { calcularDistanciaHaversine } from "../helpers/helper";
 
 export default function DataController() {
   const towerAInput = InputController("Torre A", true)
@@ -22,6 +25,7 @@ export default function DataController() {
   const cableeInMeters = InputController("Comprimento do cabo [m]")
   const gainAntenaA = InputController("Ganho da antena A [dBi]")
   const gainAntenaB = InputController("Ganho da antena B [dBi]")
+  const useTecnicalNormCheckbox = CheckboxController("Usar norma técnica", true)
 
   const [isFirst, setIsFirst] = useState<boolean>(true)
 
@@ -33,6 +37,7 @@ export default function DataController() {
   const [margem, setMargem] = useState('')
   
   const mapController =  MapController()
+  const menuController = MenuController()
   const {azimuthInDegrees, bottomFresnelElipsoid, bottomFresnelElipsoidNoObstructed, calculateNoObstructedValues, calculateReflexiveRay, destinationPoint, destinationPointNoObstructed, distanceInMeters, elevationPath, fresnalElipsoidRatio,getMaxInterferencePoint, maxInterferencePoint,maxInterferencePointDistance, originPoint, originPointNoObstructed, reflexiveRay, setAzimuthInDegrees,setDestinationPoint, setDistanceInMeters,setElevationPath,setOriginalPoint,setSightLine, sightLine,sightLineNoObstructed,topFresnelElipsoid, topFresnelElipsoidNoObstructed, calculateAzimuthInDegrees, generateSightLine, genereteFresnelElipsoid, calculateRoughness, calculateRoughnessAtPoint, midRoughness, roughnessAtPoint, setMidcRoughness, setRoughnessAtPoint } = mapController
   
   const generateGraphButton = ButtonContoller("Gerar gráfico Manualmente", () =>{
@@ -87,6 +92,83 @@ export default function DataController() {
     calculateAzimuthInDegrees()
   },[originPoint, destinationPoint])
 
+  useEffect(() => {
+    if (originPoint.lat && destinationPoint.lat) {
+      const distance = calcularDistanciaHaversine(
+        originPoint.lat,
+        originPoint.lng,
+        destinationPoint.lat,
+        destinationPoint.lng,
+      )
+      setDistanceInMeters(distance)
+    }
+  }, [originPoint, destinationPoint])
+
+  useEffect(() => {
+    async function updateElevationPath() {
+      const google = (window as any).google as any
+      if (!google?.maps?.ElevationService || !google?.maps?.geometry?.spherical) return
+      if (!originPoint.lat || !destinationPoint.lat) return
+
+      const intervalMeters = 500
+      const origin = new google.maps.LatLng(originPoint.lat, originPoint.lng)
+      const destination = new google.maps.LatLng(destinationPoint.lat, destinationPoint.lng)
+      const totalDistance = google.maps.geometry.spherical.computeDistanceBetween(origin, destination)
+      const totalSamples = Math.ceil(totalDistance / intervalMeters)
+      const MAX_SAMPLES = 512
+
+      function requestElevation(start: any, end: any, samples: number): Promise<any[]> {
+        return new Promise((resolve, reject) => {
+          const elevator = new google.maps.ElevationService()
+          elevator.getElevationAlongPath(
+            { path: [start, end], samples },
+            (results: any, status: any) => {
+              if (status === "OK" && results) {
+                resolve(
+                  results.map((point: any) => ({
+                    lat: point.location.lat(),
+                    lng: point.location.lng(),
+                    elevation: point.elevation,
+                  })),
+                )
+              } else {
+                reject(status)
+              }
+            },
+          )
+        })
+      }
+
+      let points: any[]
+      if (totalSamples <= MAX_SAMPLES) {
+        points = await requestElevation(origin, destination, totalSamples)
+      } else {
+        const segmentCount = Math.ceil(totalSamples / MAX_SAMPLES)
+        const results: any[] = []
+        for (let i = 0; i < segmentCount; i++) {
+          const startFraction = i / segmentCount
+          const endFraction = (i + 1) / segmentCount
+
+          const segmentStart = google.maps.geometry.spherical.interpolate(origin, destination, startFraction)
+          const segmentEnd = google.maps.geometry.spherical.interpolate(origin, destination, endFraction)
+          const segmentDistance = google.maps.geometry.spherical.computeDistanceBetween(segmentStart, segmentEnd)
+          const segmentSamples = Math.ceil(segmentDistance / intervalMeters)
+
+          const segmentResult = await requestElevation(segmentStart, segmentEnd, segmentSamples)
+          if (i > 0) segmentResult.shift()
+          results.push(...segmentResult)
+        }
+        points = results
+      }
+
+      setElevationPath(points)
+    }
+
+    updateElevationPath().catch(() => {
+      // evita quebrar a UI caso a API retorne erro/quota
+    })
+  }, [originPoint, destinationPoint])
+
   useEffect(()=>{
     generateSightLine()
   },[elevationPath])
@@ -96,8 +178,15 @@ export default function DataController() {
     genereteFresnelElipsoid(Number(frequency.value))
   },[sightLine])
   useEffect(()=>{
-    calculateNoObstructedValues(Number(frequency.value), twoerAHeight.setValue, twoerBHeight.setValue, Number(towerAInput.value), Number(twoerBHeight.value))
-  }, [fresnalElipsoidRatio])
+    calculateNoObstructedValues(
+      Number(frequency.value),
+      twoerAHeight.setValue,
+      twoerBHeight.setValue,
+      Number(towerAInput.value),
+      Number(twoerBHeight.value),
+      useTecnicalNormCheckbox.checked,
+    )
+  }, [fresnalElipsoidRatio, useTecnicalNormCheckbox.checked])
 
   useEffect(() => {
     calculateReflexiveRay(Number(kFactor.value), Math.pow(10, -9))
@@ -143,7 +232,9 @@ export default function DataController() {
     btnCalculateSafeMargin,
     btnAttFresnelElipsoid,
     roughnessAtPoint,
-    midRoughness
+    midRoughness,
+    menuController,
+    useTecnicalNormCheckbox
 
   }
 }

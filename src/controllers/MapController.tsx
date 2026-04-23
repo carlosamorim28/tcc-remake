@@ -269,7 +269,14 @@ export default function MapController(): MapControllerInterface {
   }
 
 
-  function calculateNoObstructedValues(frequence: number = 8, setheightTwoerA: (value: string) => void, setheightTwoerB: (value: string) => void, towerAHeigth: number, towerBHeigth: number) {
+  function calculateNoObstructedValues(
+    frequence: number = 8,
+    setheightTwoerA: (value: string) => void,
+    setheightTwoerB: (value: string) => void,
+    towerAHeigth: number,
+    towerBHeigth: number,
+    useTecnicalNorm: boolean = true,
+  ) {
 
     let calculatedHeight = 0
     const originPointToCalc = { ...originPoint }
@@ -287,7 +294,7 @@ export default function MapController(): MapControllerInterface {
           kMinValue: -35,
           towerAHeigth,
           towerBHeigth,
-          useTecnicalNorm: true
+          useTecnicalNorm
         }))  > elevationPath[i].elevation) {
           continue
         } else {
