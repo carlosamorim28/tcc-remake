@@ -27,6 +27,43 @@ O padrão mais comum no projeto é:
 2) Criar um **controller** em `src/controllers/` (hook/factory que mantém estado e expõe ações)  
 3) Criar o **componente** em `src/components/` que recebe o controller via props e renderiza a UI
 
+## Controller central (`DataController`)
+
+Neste projeto, o `DataController()` deve ser tratado como o **controller central** (orquestrador) do app:
+
+- **Criação de controllers “filhos”**: controllers como `MapController()`, `MenuController()` e controllers de input (ex.: `InputController(...)`) devem ser **chamados/criados dentro do `DataController`**.
+- **Orquestração via `useEffect`**: a maioria dos `useEffect`s que conectam estados e cálculos (ex.: quando muda `originPoint`/`destinationPoint`, quando chega `elevationPath`, quando recalcula Fresnel, etc.) deve ficar **centralizada no `DataController`**.
+- **UI mais simples**: componentes em `src/components/` devem focar em renderização/estilo e delegar estado/cálculo para controllers.
+
+Exemplo (resumido) do padrão:
+
+```tsx
+import { useEffect } from 'react'
+import MapController from './MapController'
+import MenuController from './MenuController'
+import { InputController } from './InputController'
+
+export default function DataController() {
+  const mapController = MapController()
+  const menuController = MenuController()
+
+  const towerAInput = InputController('Torre A', true)
+  const towerBInput = InputController('Torre B', true)
+
+  useEffect(() => {
+    // Reações encadeadas a mudanças no mapa / inputs
+    // (ex.: recalcular azimute, gerar linha de visada, recalcular Fresnel, etc.)
+  }, [mapController.originPoint, mapController.destinationPoint])
+
+  return {
+    mapController,
+    menuController,
+    towerAInput,
+    towerBInput,
+  }
+}
+```
+
 ### 1) Model (contrato) — `src/models/<Nome>Controller.tsx`
 
 - Use `export default interface ...` quando for o padrão do arquivo (observado em `ButtonController`).
