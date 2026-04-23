@@ -25,6 +25,7 @@ export default function MapController(): MapControllerInterface {
 
   const [maxInterferencePoint, setMaxInterferencePoint] = useState<LatLng>({elevation: 0, lat: 0, lng: 0})
   const [maxInterferencePointDistance, setMaxInterferencePointDistance] = useState<number>(0)
+  const [maxInterferencePointIndex, setMaxInterferencePointIndex] = useState<number>(0)
   const [reflexiveRay, setReflexiveRay] = useState<LatLng[]>([])
   const [reflexivePoint, setRefleexivePoint] = useState<LatLng>({lat:0, lng: 0, elevation: 0})
   const [reflexivePointIndex, setReflexivePointIndex] = useState<number>(0)
@@ -175,6 +176,7 @@ export default function MapController(): MapControllerInterface {
     let maxInterferencePoint: LatLng = {elevation: 0, lat: 0, lng: 0}
     const originPointToCalc = { ...originPoint }
     const destinationPointToCalc = { ...destinationPoint }
+    let interefereceIndex = 0
     while(true){
       let sightLineIsHigher = true
       const sightLineToCalc = generateSightLineWithParams(originPointToCalc, destinationPointToCalc)
@@ -184,6 +186,7 @@ export default function MapController(): MapControllerInterface {
           continue
         } else {
           maxInterferencePoint = elevationPath[i]
+          interefereceIndex = i
           console.log('maxInterferencePoint', maxInterferencePoint)
           sightLineIsHigher = false
         }
@@ -196,6 +199,7 @@ export default function MapController(): MapControllerInterface {
       }
     }
     setMaxInterferencePoint(maxInterferencePoint)
+    setMaxInterferencePointIndex(interefereceIndex)
     setMaxInterferencePointDistance(calcularDistanciaHaversine(originPoint.lat, originPoint.lng, maxInterferencePoint.lat, maxInterferencePoint.lng))
   }
 
@@ -225,11 +229,47 @@ export default function MapController(): MapControllerInterface {
     setFresnelElipsoidRatio(fresnelElipsoideRatio)
   }
 
-  function releasePercentFresnelRatio(frequence: number){
-    return 1
+   function releasePercentFresnelRatio(data: {frequency: number, towerAHeigth: number, towerBHeigth: number, kMinValue: number, kMedValue: number,useTecnicalNorm: boolean}){
+    if(!data.useTecnicalNorm){
+      return 1 
+    }
+
+    let kMedPercent = 0
+    let kMinPercent = 0
+    if (data.frequency >= 2.5){
+      kMedPercent = 1
+      kMinPercent = 0.6
+    } else if (data.frequency >= 1 && data.frequency < 2.5) {
+      kMedPercent = 0.6
+      kMinPercent = 0.3
+    } else if(data.frequency < 1) {
+      kMedPercent = 0.3
+      kMinPercent = 0.1
+    }
+
+    
+    const distanceInKm = distanceInMeters / 1000
+    const maxInterferencePointDistanceInKm = maxInterferencePointDistance / 1000
+    const commumTerm = ((distanceInKm - maxInterferencePointDistanceInKm) * (elevationPath[0].elevation + data.towerAHeigth) + maxInterferencePointDistanceInKm * (elevationPath[elevationPath.length - 1].elevation + data.towerBHeigth)) / distanceInKm 
+    function variableTerm(kValue: number): number {
+      const d1 = maxInterferencePointDistanceInKm
+      const d2 = distanceInKm - maxInterferencePointDistanceInKm
+      const RmedInKm = 6370
+      return (d1 * d2 * Math.pow(10, 3)) / (2 * RmedInKm * kValue)
+    }
+    const atenuationKmed = commumTerm - variableTerm(data.kMedValue) - kMedPercent * (topFresnelElipsoid[maxInterferencePointIndex].elevation - sightLine[maxInterferencePointIndex].elevation) - maxInterferencePoint.elevation
+    const atenuationKmin = commumTerm - variableTerm(data.kMinValue) - kMinPercent * (topFresnelElipsoid[maxInterferencePointIndex].elevation - sightLine[maxInterferencePointIndex].elevation) - maxInterferencePoint.elevation
+    
+    if(atenuationKmin < atenuationKmed)  {
+      return kMinPercent === 1 ? 1 : 2 - kMinPercent 
+    } else {
+      return kMedPercent === 1 ? 1 : 2 - kMedPercent 
+    }
+    
   }
 
-  function calculateNoObstructedValues(frequence: number = 8, setheightTwoerA: (value: string) => void, setheightTwoerB: (value: string) => void) {
+
+  function calculateNoObstructedValues(frequence: number = 8, setheightTwoerA: (value: string) => void, setheightTwoerB: (value: string) => void, towerAHeigth: number, towerBHeigth: number) {
 
     let calculatedHeight = 0
     const originPointToCalc = { ...originPoint }
@@ -241,7 +281,14 @@ export default function MapController(): MapControllerInterface {
       const sightLineToCalc = generateSightLineWithParams(originPointToCalc, destinationPointToCalc).map((point, index) => { return { ...point, elevation: point.elevation - fresnalElipsoidRatio[index] } })
       
       for(let i = 0 ; i < elevationPath.length; i++) {
-        if((sightLineToCalc[i].elevation * releasePercentFresnelRatio(frequence))  > elevationPath[i].elevation) {
+        if((sightLineToCalc[i].elevation * releasePercentFresnelRatio({
+          frequency: frequence,
+          kMedValue: -57,
+          kMinValue: -35,
+          towerAHeigth,
+          towerBHeigth,
+          useTecnicalNorm: true
+        }))  > elevationPath[i].elevation) {
           continue
         } else {
           sightLineIsHigher = false

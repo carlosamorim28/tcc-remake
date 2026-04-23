@@ -26,7 +26,7 @@ export default interface MapControllerInterface {
   setSightLine: (value: LatLng[]) => void
   getMaxInterferencePoint: VoidFunction
   setAzimuthInDegrees: (value: AzimuthInterface) => void
-  calculateNoObstructedValues: (frequence: number, setheightTwoerA: (value: string) => void, setheightTwoerB: (value: string) => void) => void
+  calculateNoObstructedValues: (frequence: number, setheightTwoerA: (value: string) => void, setheightTwoerB: (value: string) => void, towerAHeigth: number, towerBHeigth: number) => void
   calculateReflexiveRay: (kFactor: number, precision: number) => void
   calculateAzimuthInDegrees: () => void
   genereteFresnelElipsoid: (frequency?: number) => void

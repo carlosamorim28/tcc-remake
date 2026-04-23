@@ -96,7 +96,7 @@ export default function DataController() {
     genereteFresnelElipsoid(Number(frequency.value))
   },[sightLine])
   useEffect(()=>{
-    calculateNoObstructedValues(Number(frequency.value), twoerAHeight.setValue, twoerBHeight.setValue)
+    calculateNoObstructedValues(Number(frequency.value), twoerAHeight.setValue, twoerBHeight.setValue, Number(towerAInput.value), Number(twoerBHeight.value))
   }, [fresnalElipsoidRatio])
 
   useEffect(() => {
