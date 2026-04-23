@@ -2,6 +2,7 @@ import Input from "../../../components/Input/Input";
 import Button from "../../../components/Button/Button";
 import Graph from "../../../components/Graph/Graph";
 import type DataController from "../../../controllers/DataController";
+import Checkbox from "../../../components/Checkbox/Checkbox";
 
 export default function GeneralSession ({dataController}: {dataController: ReturnType<typeof DataController>}): React.ReactElement {
 
@@ -26,6 +27,9 @@ export default function GeneralSession ({dataController}: {dataController: Retur
           <Input controller={dataController.kFactor} />
         </div>
 
+        <div className="button-grid">
+          <Checkbox controller={dataController.useTecnicalNormCheckbox} />
+        </div>
 
         <div className="button-grid">
          <Button controller={dataController.generateGraphButton} />

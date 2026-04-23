@@ -4,7 +4,6 @@ import Input from "../../components/Input/Input"
 import Map from "../../components/Map/Map"
 import { Menu } from "../../components/Menu/Menu"
 import DataController from "../../controllers/DataController"
-import MenuController from "../../controllers/MenuController"
 import DataSession from "./DataSession/DataSession"
 import GeneralSession from "./GeneralSession/GeneralSession"
 import "./MapScreen.css"
@@ -13,7 +12,7 @@ import RoughnessSession from "./RoughnessSession/RoughnessSession"
 export default function MapScreen(): React.ReactElement {
 
   const dataController = DataController()
-  const menuController = MenuController()
+  const menuController = dataController.menuController
 
   
   return (
