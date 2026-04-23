@@ -1,4 +1,5 @@
 import Graph from '../../../components/Graph/Graph';
+import Checkbox from '../../../components/Checkbox/Checkbox';
 import type DataController from '../../../controllers/DataController';
 import { calcularDistanciaHaversine } from '../../../helpers/helper';
 import  './RoughnessSession.css'
@@ -6,6 +7,7 @@ import  './RoughnessSession.css'
 export default function RoughnessSession({dataController}: {dataController: ReturnType<typeof DataController>}): React.ReactElement{
     return (
     <>
+        <Checkbox controller={dataController.useTecnicalNormCheckbox} />
         <p>Rugosidade Média: {Math.ceil(dataController.mapController.midRoughness * 100)/ 100}</p>
         <p>Diagnóstico: {dataController.midRoughness < dataController.roughnessAtPoint ? 'Rugoso' : 'Liso'}</p>
         <p>Distância até o ponto de Reflexão: {Math.ceil(calcularDistanciaHaversine(dataController.mapController.originPoint.lat, dataController.mapController.originPoint.lng, dataController.mapController.reflexivePoint.lat, dataController.mapController.reflexivePoint.lng) * 100 / 1000) / (100)  } Km</p>
