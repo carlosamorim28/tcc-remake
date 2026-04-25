@@ -30,11 +30,7 @@ export function parseStringToRectangularCoordinates(
   const latitude = parseFloat(parts[0]);
   const longitude = parseFloat(parts[1]);
 
-  if (
-    isNaN(latitude) ||
-    isNaN(longitude || Number(parts[0] || Number(parts[1])))
-  )
-    return null;
+  if (Number.isNaN(latitude) || Number.isNaN(longitude)) return null;
 
   return { latitude, longitude };
 }

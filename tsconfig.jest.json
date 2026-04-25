@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "moduleResolution": "node16",
+    "module": "esnext",
+    "verbatimModuleSyntax": false,
+    "types": ["jest", "node"]
+  }
+}
+
