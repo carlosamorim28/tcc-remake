@@ -9,15 +9,15 @@ export default function MapController(): MapControllerInterface {
   const [originPointNoObstructed, setOriginalPointNoObstructed] =  useState<LatLng>({lat:0, lng: 0, elevation: 0})
   const [destinationPoint, setDestinationPoint] =  useState<LatLng>({lat: 0, lng: 0, elevation: 0})
   const [destinationPointNoObstructed, setDestinationPointNoObstructed] =  useState<LatLng>({lat: 0, lng: 0, elevation: 0})
-  
+
   const [elevationPath, setElevationPath] = useState<LatLng[]>([])
   const [distanceInMeters, setDistanceInMeters] = useState<number>(0)
-  
+
   const [sightLine, setSightLine] = useState<LatLng[]>([]) // linha de visada
   const [sightLineNoObstructed, setSightLineNoObstructed] = useState<LatLng[]>([]) // linha de visada não obstruída
-  
+
   const [fresnalElipsoidRatio, setFresnelElipsoidRatio] = useState<number[]>([])
-  
+
   const [topFresnelElipsoid, setTopFresnelElipsoid] = useState<LatLng[]>([])
   const [bottomFresnelElipsoid, setBottomFresnelElipsoid] = useState<LatLng[]>([])
   const [topFresnelElipsoidNoObstructed, setTopFresnelElipsoidNoObstructed] = useState<LatLng[]>([])
@@ -34,6 +34,96 @@ export default function MapController(): MapControllerInterface {
   const [midRoughness, setMidRoughness] = useState<number>(0)
   const [roughnessAtPoint, setRoughnessAtPoint] = useState<number>(0)
   const [maxScaleValue, setMaxScaleValue] = useState<number>(0)
+
+
+  function calculateRainLoss(rainfallRate: number, frequencyGz: number, margem: number): {finalVerticalLoss: number, finalHorizontalLoss: number} {
+    const {aH, aV, kH, kV} = getCoeficiente()
+    const R = rainfallRate
+    const verticalLoss = kV * Math.pow(R, aV)
+    const horizontalLoss = kH * Math.pow(R, aH)
+    const r = calculatePercetDistanceRain()
+    const deffKm = r * (distanceInMeters / 1000) // deffKm => Diâmetro efetivoda célula de chuva
+
+    const ArV = deffKm * verticalLoss
+    const ArH = deffKm * horizontalLoss
+
+    function calculateIndisponibilidadeVertical(){
+      const log = Math.log((8.33 * margem) / ArV)
+      const sqtr = 40.29 - 23.25*log < 0 ? 0 : Math.sqrt(40.29 - 23.25*log)
+      const expoente = -6.34 + sqtr
+      return Math.pow(10, expoente)
+    }
+
+    function calculateIndisponibilidadeHorizontal(){
+      const log = Math.log((8.33 * margem) / ArH)
+      const sqtr = 40.29 - 23.25*log < 0 ? 0 : Math.sqrt(40.29 - 23.25*log)
+      const expoente = -6.34 + sqtr
+      return Math.pow(10, expoente)
+    }
+
+
+
+    function calculatePercetDistanceRain(){
+      const distanceInKm = distanceInMeters / 1000
+      return 1 / (1 + (distanceInKm / (35 * Math.pow(Math.E, -0.015*R))))
+    }
+    
+
+    function getCoeficiente(){
+      const coeficientes = [
+        {"frequencia_GHz": 1, "kH": 0.0000387, "kV": 0.0000352, "aH": 0.912, "aV": 0.880},
+        {"frequencia_GHz": 2, "kH": 0.000154, "kV": 0.000138, "aH": 0.963, "aV": 0.923},
+        {"frequencia_GHz": 4, "kH": 0.000650, "kV": 0.000591, "aH": 1.121, "aV": 1.075},
+        {"frequencia_GHz": 6, "kH": 0.00175, "kV": 0.00155, "aH": 1.308, "aV": 1.265},
+        {"frequencia_GHz": 7, "kH": 0.00301, "kV": 0.00265, "aH": 1.332, "aV": 1.312},
+        {"frequencia_GHz": 8, "kH": 0.00454, "kV": 0.00395, "aH": 1.327, "aV": 1.310},
+        {"frequencia_GHz": 10, "kH": 0.0101, "kV": 0.00887, "aH": 1.276, "aV": 1.264},
+        {"frequencia_GHz": 12, "kH": 0.0188, "kV": 0.0168, "aH": 1.217, "aV": 1.200},
+        {"frequencia_GHz": 15, "kH": 0.0367, "kV": 0.0335, "aH": 1.154, "aV": 1.128},
+        {"frequencia_GHz": 18, "kH": 0.0495, "kV": 0.0442, "aH": 1.110, "aV": 1.091},
+        {"frequencia_GHz": 20, "kH": 0.0751, "kV": 0.0691, "aH": 1.099, "aV": 1.065},
+        {"frequencia_GHz": 23, "kH": 0.0789, "kV": 0.0705, "aH": 1.067, "aV": 1.049},
+        {"frequencia_GHz": 25, "kH": 0.124, "kV": 0.113, "aH": 1.061, "aV": 1.030},
+        {"frequencia_GHz": 30, "kH": 0.187, "kV": 0.167, "aH": 1.021, "aV": 1.000},
+        {"frequencia_GHz": 35, "kH": 0.263, "kV": 0.233, "aH": 0.979, "aV": 0.963},
+        {"frequencia_GHz": 40, "kH": 0.350, "kV": 0.310, "aH": 0.939, "aV": 0.929},
+        {"frequencia_GHz": 45, "kH": 0.442, "kV": 0.393, "aH": 0.903, "aV": 0.897},
+        {"frequencia_GHz": 50, "kH": 0.536, "kV": 0.479, "aH": 0.873, "aV": 0.868},
+        {"frequencia_GHz": 60, "kH": 0.707, "kV": 0.642, "aH": 0.826, "aV": 0.824},
+        {"frequencia_GHz": 70, "kH": 0.851, "kV": 0.784, "aH": 0.793, "aV": 0.793},
+        {"frequencia_GHz": 80, "kH": 0.975, "kV": 0.906, "aH": 0.769, "aV": 0.769},
+        {"frequencia_GHz": 90, "kH": 1.06, "kV": 0.999, "aH": 0.753, "aV": 0.754},
+        {"frequencia_GHz": 100, "kH": 1.12, "kV": 1.06, "aH": 0.743, "aV": 0.744},
+        {"frequencia_GHz": 120, "kH": 1.18, "kV": 1.13, "aH": 0.731, "aV": 0.732},
+        {"frequencia_GHz": 150, "kH": 1.31, "kV": 1.27, "aH": 0.710, "aV": 0.711},
+        {"frequencia_GHz": 200, "kH": 1.45, "kV": 1.42, "aH": 0.689, "aV": 0.690},
+        {"frequencia_GHz": 300, "kH": 1.36, "kV": 1.35, "aH": 0.688, "aV": 0.689},
+        {"frequencia_GHz": 400, "kH": 1.32, "kV": 1.31, "aH": 0.683, "aV": 0.684}
+      ]
+      if(frequencyGz <= 1) {
+        return coeficientes[0]
+      }
+      if (frequencyGz >= 400){
+        return coeficientes[coeficientes.length-1]
+      }
+      let selectedIndex = -1
+      for (let i = 0; i < coeficientes.length; i ++){
+         if(coeficientes[i].frequencia_GHz <= frequencyGz) {
+          selectedIndex = i;
+         }
+      }
+      if(coeficientes[selectedIndex].frequencia_GHz === frequencyGz) {
+        return coeficientes[selectedIndex]
+      }
+      return coeficientes[selectedIndex + 1]
+    }
+
+    return {
+      finalHorizontalLoss: calculateIndisponibilidadeHorizontal(),
+      finalVerticalLoss: calculateIndisponibilidadeVertical()
+    }
+
+  }
 
   function calculateAzimuthInDegrees (): void {
   if(originPoint.lat === 0 || destinationPoint.lat === 0) return
@@ -502,6 +592,7 @@ export default function MapController(): MapControllerInterface {
     reflexivePointIndex,
     calculateReflexiveArea,
     maxScaleValue, 
-    setMaxScaleValue
+    setMaxScaleValue,
+    calculateRainLoss
   }
 }

@@ -42,5 +42,6 @@ export default interface MapControllerInterface {
   reflexivePointIndex: number
   calculateReflexiveArea: () => number
   maxScaleValue: number, setMaxScaleValue: (value: number) => void
+  calculateRainLoss(rainfallRate: number, frequencyGz: number, margem: number): {finalVerticalLoss: number, finalHorizontalLoss: number}
   
 }
