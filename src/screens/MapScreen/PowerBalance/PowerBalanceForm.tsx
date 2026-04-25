@@ -36,7 +36,6 @@ export default function PowerBalanceForm({dataController}: {dataController: Retu
       <div className="power-balance-form-container-input-full-width">
         <Button controller={dataController.btnCalculateSafeMargin} />
       </div>
-      
     </div>
   )
 }

@@ -8,6 +8,7 @@ import DataSession from "./DataSession/DataSession"
 import GeneralSession from "./GeneralSession/GeneralSession"
 import "./MapScreen.css"
 import PowerBalanceForm from "./PowerBalance/PowerBalanceForm"
+import RainSeession from "./RainSession/RainSession"
 import RoughnessSession from "./RoughnessSession/RoughnessSession"
 export default function MapScreen(): React.ReactElement {
 
@@ -32,6 +33,9 @@ export default function MapScreen(): React.ReactElement {
           )}
           {menuController.menuOptions[3].isSelected && (
             <PowerBalanceForm dataController={dataController} />
+          )}
+          {menuController.menuOptions[4].isSelected && (
+            <RainSeession dataController={dataController} />
           )}
         </div>
       </div>
