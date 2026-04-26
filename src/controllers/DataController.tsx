@@ -6,8 +6,8 @@ import { InputController } from "./InputController";
 import MapController from "./MapController";
 import MenuController from "./MenuController";
 import { calculateFreeSpaceAtenuation } from "../helpers/helper";
-import type { InputControllerInterface } from "../models/InputController";
 import { calcularDistanciaHaversine } from "../helpers/helper";
+import { useInterferencePowerControllers } from "./useInterferencePowerControllers";
 
 export default function DataController() {
   const towerAInput = InputController("Torre A", true)
@@ -37,7 +37,7 @@ export default function DataController() {
 
   // const interferenceLoss = InputController("Ptências interferentes em Dbm ex: -98, -90, -99")
   const inputsInterferenceNumberController = InputController('Quantidade de Potências interferentes')
-  const [inputsInterferecePower, setInputsInterferecePower] = useState<InputControllerInterface[]>([InputController('Potência [dBm]', false), InputController('Potência [dBm]', false), InputController('Potência [dBm]', false), InputController('Potência [dBm]', false), InputController('Potência [dBm]', false), InputController('Potência [dBm]', false), InputController('Potência [dBm]', false), InputController('Potência [dBm]', false), InputController('Potência [dBm]', false), InputController('Potência [dBm]', false)])
+  const inputsInterferecePower = useInterferencePowerControllers()
   
   const [margem, setMargem] = useState('')
   const [pnrDb, setPnrDb] = useState('')
