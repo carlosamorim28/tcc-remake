@@ -40,6 +40,7 @@ export default function DataController() {
   const [inputsInterferecePower, setInputsInterferecePower] = useState<InputControllerInterface[]>([InputController('Potência [dBm]', false), InputController('Potência [dBm]', false), InputController('Potência [dBm]', false), InputController('Potência [dBm]', false), InputController('Potência [dBm]', false), InputController('Potência [dBm]', false), InputController('Potência [dBm]', false), InputController('Potência [dBm]', false), InputController('Potência [dBm]', false), InputController('Potência [dBm]', false)])
   
   const [margem, setMargem] = useState('')
+  const [pnrDb, setPnrDb] = useState('')
   
   const mapController =  MapController()
   const menuController = MenuController()
@@ -92,6 +93,7 @@ function calculateSafeMargin() {
     const diDb = 10 * Math.log10(Math.pow(10,-9.5) + Math.pow(10, itDb/10)) + 95
     const margin = PNR - Number(receptionThreshold.value) -diDb
     setMargem(`${margin}`)
+    setPnrDb(`${PNR}`)
   }
 
   useEffect(()=>{
@@ -246,6 +248,8 @@ function calculateSafeMargin() {
     btnAttFresnelElipsoid,
     roughnessAtPoint,
     midRoughness,
+    margem,
+    pnrDb,
     menuController,
     useTecnicalNormCheckbox,
     taxaPluviometricaInput,

@@ -4,7 +4,15 @@ import Input from "../../../components/Input/Input";
 import type DataController from "../../../controllers/DataController";
 import './PowerBalanceForm.css'
 
+function formatDb(value: number) {
+  return Number.isFinite(value) ? `${value.toFixed(2)} dB` : "-"
+}
+
 export default function PowerBalanceForm({dataController}: {dataController: ReturnType<typeof DataController>}): React.ReactElement {
+  const pnr = Number(dataController.pnrDb)
+  const margem = Number(dataController.margem)
+  const hasResult = dataController.pnrDb.trim().length > 0 || dataController.margem.trim().length > 0
+
   return (
     <div className="active-collumn">
       <div className="power-balance-form-container-input-full-width">
@@ -36,6 +44,22 @@ export default function PowerBalanceForm({dataController}: {dataController: Retu
       <div className="power-balance-form-container-input-full-width">
         <Button controller={dataController.btnCalculateSafeMargin} />
       </div>
+
+      {hasResult && (
+        <div className="power-balance-result-card">
+          <div className="power-balance-result-title">Margem de segurança</div>
+
+          <div className="power-balance-result-line">
+            <span className="power-balance-result-label">PNR</span>
+            <span className="power-balance-result-value">{formatDb(pnr)}</span>
+          </div>
+
+          <div className="power-balance-result-line">
+            <span className="power-balance-result-label">Margem de segurança</span>
+            <span className="power-balance-result-value">{formatDb(margem)}</span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

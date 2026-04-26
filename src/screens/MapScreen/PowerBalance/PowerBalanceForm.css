@@ -7,3 +7,32 @@
   height: fit-content;
   grid-column: span 2;
 }
+
+.power-balance-result-card {
+  grid-column: span 4;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.power-balance-result-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.power-balance-result-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+}
+
+.power-balance-result-label {
+  opacity: 0.9;
+}
+
+.power-balance-result-value {
+  font-weight: 600;
+}
