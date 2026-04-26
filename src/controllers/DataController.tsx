@@ -29,8 +29,10 @@ export default function DataController() {
   const taxaPluviometricaInput = InputController('Taxa Pluviometrica para 0,01% do tempo (mm/h)')
 
   const [isFirst, setIsFirst] = useState<boolean>(true)
-  const [horizontalRainLoss, setHorizontalRainLoss] = useState('')
-  const [verticalRainLoss, setVerticalRainLoss] = useState('')
+  const [horizontalRainAttenuationDb, setHorizontalRainAttenuationDb] = useState('')
+  const [verticalRainAttenuationDb, setVerticalRainAttenuationDb] = useState('')
+  const [horizontalRainUnavailability, setHorizontalRainUnavailability] = useState('')
+  const [verticalRainUnavailability, setVerticalRainUnavailability] = useState('')
 
 
   // const interferenceLoss = InputController("Ptências interferentes em Dbm ex: -98, -90, -99")
@@ -44,9 +46,11 @@ export default function DataController() {
   const { calculateRainLoss ,azimuthInDegrees, bottomFresnelElipsoid, bottomFresnelElipsoidNoObstructed, calculateNoObstructedValues, calculateReflexiveRay, destinationPoint, destinationPointNoObstructed, distanceInMeters, elevationPath, fresnalElipsoidRatio,getMaxInterferencePoint, maxInterferencePoint,maxInterferencePointDistance, originPoint, originPointNoObstructed, reflexiveRay, setAzimuthInDegrees,setDestinationPoint, setDistanceInMeters,setElevationPath,setOriginalPoint,setSightLine, sightLine,sightLineNoObstructed,topFresnelElipsoid, topFresnelElipsoidNoObstructed, calculateAzimuthInDegrees, generateSightLine, genereteFresnelElipsoid, calculateRoughness, calculateRoughnessAtPoint, midRoughness, roughnessAtPoint, setMidcRoughness, setRoughnessAtPoint } = mapController
 
   const calculateTaxaPluviometricaButton = ButtonContoller('Calcular Taxa Pluviométrica', () => {
-      const { finalHorizontalLoss, finalVerticalLoss } = mapController.calculateRainLoss(Number(taxaPluviometricaInput.value), Number(frequency.value), Number(margem))
-      setHorizontalRainLoss(String(finalHorizontalLoss))
-      setVerticalRainLoss(String(finalVerticalLoss))
+      const { ArH, ArV, finalHorizontalLoss, finalVerticalLoss } = mapController.calculateRainLoss(Number(taxaPluviometricaInput.value), Number(frequency.value), Number(margem))
+      setHorizontalRainAttenuationDb(String(ArH))
+      setVerticalRainAttenuationDb(String(ArV))
+      setHorizontalRainUnavailability(String(finalHorizontalLoss))
+      setVerticalRainUnavailability(String(finalVerticalLoss))
   })
 
   const generateGraphButton = ButtonContoller("Gerar gráfico Manualmente", () =>{
@@ -76,7 +80,7 @@ export default function DataController() {
 
  
 
-function calculateSafeMargin(){
+function calculateSafeMargin() {
     const PNR = Number(signalPower.value) + Number(gainAntenaA.value) + Number(gainAntenaB.value) - (Number(cableLoss.value) * Number(cableeInMeters.value)) - (Number(connectoLoss.value) * 4) - calculateFreeSpaceAtenuation(distanceInMeters / 1000, Number(frequency.value))
     const potenciasInterferentes = inputsInterferecePower.map((value, index) => (index < Number(inputsInterferenceNumberController.value) && value.value.trim())).map((value) => (Math.pow(10,(Number(value)/10))))
     let somaPotenciasInterferentes = 0
@@ -191,7 +195,7 @@ function calculateSafeMargin(){
       Number(frequency.value),
       twoerAHeight.setValue,
       twoerBHeight.setValue,
-      Number(towerAInput.value),
+      Number(twoerAHeight.value),
       Number(twoerBHeight.value),
       useTecnicalNormCheckbox.checked,
     )
@@ -245,6 +249,10 @@ function calculateSafeMargin(){
     menuController,
     useTecnicalNormCheckbox,
     taxaPluviometricaInput,
+    horizontalRainAttenuationDb,
+    verticalRainAttenuationDb,
+    horizontalRainUnavailability,
+    verticalRainUnavailability,
     calculateTaxaPluviometricaButton
   }
 }

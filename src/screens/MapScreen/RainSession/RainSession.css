@@ -1,0 +1,59 @@
+.rain-session-result-card {
+  grid-column: span 4;
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid rgba(127, 127, 127, 0.35);
+  background: rgba(127, 127, 127, 0.12);
+}
+
+.rain-session-result-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.rain-session-result-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+}
+
+.rain-session-result-label {
+  opacity: 0.9;
+}
+
+.rain-session-result-value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.rain-session-result-polarization {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(127, 127, 127, 0.25);
+}
+
+.rain-session-result-polarization:first-of-type {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.rain-session-result-polarization-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+  opacity: 0.95;
+}
+
+.rain-session-result-line-sub {
+  padding: 4px 0;
+}
+
+.rain-session-result-fraction {
+  font-weight: 500;
+  font-size: 0.95em;
+  word-break: break-all;
+  text-align: right;
+  max-width: 65%;
+}

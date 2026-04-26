@@ -36,38 +36,76 @@ export default function MapController(): MapControllerInterface {
   const [maxScaleValue, setMaxScaleValue] = useState<number>(0)
 
 
-  function calculateRainLoss(rainfallRate: number, frequencyGz: number, margem: number): {finalVerticalLoss: number, finalHorizontalLoss: number} {
+function calculateRainLoss(rainfallRate: number, frequencyGz: number, margem: number): {
+  ArH: number
+  ArV: number
+  finalVerticalLoss: number
+  finalHorizontalLoss: number
+} {
+    console.log('=== calculateRainLoss START ===');
+    console.log('inputs:', { rainfallRate, frequencyGz, margem });
+
     const {aH, aV, kH, kV} = getCoeficiente()
+    console.log('coeficientes:', { aH, aV, kH, kV });
+
     const R = rainfallRate
     const verticalLoss = kV * Math.pow(R, aV)
     const horizontalLoss = kH * Math.pow(R, aH)
+    console.log('losses por km:', { verticalLoss, horizontalLoss });
+
     const r = calculatePercetDistanceRain()
-    const deffKm = r * (distanceInMeters / 1000) // deffKm => Diâmetro efetivoda célula de chuva
+    console.log('r (percentual distância chuva):', r);
+
+    const deffKm = r * (distanceInMeters / 1000)
+    console.log('deffKm (diâmetro efetivo célula de chuva):', deffKm);
 
     const ArV = deffKm * verticalLoss
     const ArH = deffKm * horizontalLoss
+    console.log('atenuação total:', { ArV, ArH });
 
     function calculateIndisponibilidadeVertical(){
+      console.log('--- calculateIndisponibilidadeVertical ---');
       const log = Math.log((8.33 * margem) / ArV)
+      console.log('log:', log);
       const sqtr = 40.29 - 23.25*log < 0 ? 0 : Math.sqrt(40.29 - 23.25*log)
+      console.log('sqtr:', sqtr, '| valor antes do clamp:', 40.29 - 23.25*log);
       const expoente = -6.34 + sqtr
-      return Math.pow(10, expoente)
+      console.log('expoente:', expoente);
+      const result = Math.pow(10, expoente)
+      console.log('indisponibilidade vertical:', result);
+      return result
     }
 
     function calculateIndisponibilidadeHorizontal(){
+      console.log('--- calculateIndisponibilidadeHorizontal ---');
       const log = Math.log((8.33 * margem) / ArH)
+      console.log('log:', log);
       const sqtr = 40.29 - 23.25*log < 0 ? 0 : Math.sqrt(40.29 - 23.25*log)
+      console.log('sqtr:', sqtr, '| valor antes do clamp:', 40.29 - 23.25*log);
       const expoente = -6.34 + sqtr
-      return Math.pow(10, expoente)
+      console.log('expoente:', expoente);
+      const result = Math.pow(10, expoente)
+      console.log('indisponibilidade horizontal:', result);
+      return result
     }
-
-
 
     function calculatePercetDistanceRain(){
       const distanceInKm = distanceInMeters / 1000
-      return 1 / (1 + (distanceInKm / (35 * Math.pow(Math.E, -0.015*R))))
+      const exponent = -0.015 * R
+      const d0 = 35 * Math.pow(Math.E, exponent)
+      const ratio = distanceInKm / d0
+      const result = 1 / (1 + ratio)
+      console.log('calculatePercetDistanceRain:', { 
+        distanceInMeters,
+        distanceInKm,
+        R,
+        exponent,
+        d0,
+        ratio,
+        result 
+      });
+      return result
     }
-    
 
     function getCoeficiente(){
       const coeficientes = [
@@ -101,9 +139,11 @@ export default function MapController(): MapControllerInterface {
         {"frequencia_GHz": 400, "kH": 1.32, "kV": 1.31, "aH": 0.683, "aV": 0.684}
       ]
       if(frequencyGz <= 1) {
+        console.log('getCoeficiente: frequência <= 1, usando índice 0');
         return coeficientes[0]
       }
       if (frequencyGz >= 400){
+        console.log('getCoeficiente: frequência >= 400, usando último índice');
         return coeficientes[coeficientes.length-1]
       }
       let selectedIndex = -1
@@ -112,19 +152,24 @@ export default function MapController(): MapControllerInterface {
           selectedIndex = i;
          }
       }
+      console.log('getCoeficiente: selectedIndex:', selectedIndex, '| frequência do índice:', coeficientes[selectedIndex].frequencia_GHz);
       if(coeficientes[selectedIndex].frequencia_GHz === frequencyGz) {
+        console.log('getCoeficiente: frequência exata encontrada, usando índice:', selectedIndex);
         return coeficientes[selectedIndex]
       }
+      console.log('getCoeficiente: interpolando para índice:', selectedIndex + 1, '| frequência:', coeficientes[selectedIndex + 1].frequencia_GHz);
       return coeficientes[selectedIndex + 1]
     }
 
-    return {
+    const result = {
+      ArH,
+      ArV,
       finalHorizontalLoss: calculateIndisponibilidadeHorizontal(),
       finalVerticalLoss: calculateIndisponibilidadeVertical()
     }
-
+    console.log('=== calculateRainLoss END ===', result);
+    return result
   }
-
   function calculateAzimuthInDegrees (): void {
   if(originPoint.lat === 0 || destinationPoint.lat === 0) return
   const toRad = (deg: number) => (deg * Math.PI) / 180;
@@ -277,7 +322,6 @@ export default function MapController(): MapControllerInterface {
         } else {
           maxInterferencePoint = elevationPath[i]
           interefereceIndex = i
-          console.log('maxInterferencePoint', maxInterferencePoint)
           sightLineIsHigher = false
         }
       }
@@ -319,8 +363,12 @@ export default function MapController(): MapControllerInterface {
     setFresnelElipsoidRatio(fresnelElipsoideRatio)
   }
 
-   function releasePercentFresnelRatio(data: {frequency: number, towerAHeigth: number, towerBHeigth: number, kMinValue: number, kMedValue: number,useTecnicalNorm: boolean}){
+   function releasePercentFresnelRatio(data: {frequency: number, towerAHeigth: number, towerBHeigth: number, kMinValue: number, kMedValue: number, useTecnicalNorm: boolean}){
+    console.log('=== releasePercentFresnelRatio START ===');
+    console.log('inputs:', data);
+
     if(!data.useTecnicalNorm){
+      console.log('useTecnicalNorm=false, retornando 1 sem cálculo');
       return 1 
     }
 
@@ -336,26 +384,49 @@ export default function MapController(): MapControllerInterface {
       kMedPercent = 0.3
       kMinPercent = 0.1
     }
+    console.log('percentuais por faixa de frequência:', { frequency: data.frequency, kMedPercent, kMinPercent });
 
-    
     const distanceInKm = distanceInMeters / 1000
     const maxInterferencePointDistanceInKm = maxInterferencePointDistance / 1000
-    const commumTerm = ((distanceInKm - maxInterferencePointDistanceInKm) * (elevationPath[0].elevation + data.towerAHeigth) + maxInterferencePointDistanceInKm * (elevationPath[elevationPath.length - 1].elevation + data.towerBHeigth)) / distanceInKm 
+    console.log('distâncias:', { distanceInMeters, distanceInKm, maxInterferencePointDistance, maxInterferencePointDistanceInKm });
+
+    const elevationA = elevationPath[0].elevation + data.towerAHeigth
+    const elevationB = elevationPath[elevationPath.length - 1].elevation + data.towerBHeigth
+    const commumTerm = ((distanceInKm - maxInterferencePointDistanceInKm) * elevationA + maxInterferencePointDistanceInKm * elevationB) / distanceInKm
+    console.log('commumTerm:', {
+      elevationA,
+      elevationB,
+      commumTerm
+    });
+
     function variableTerm(kValue: number): number {
       const d1 = maxInterferencePointDistanceInKm
       const d2 = distanceInKm - maxInterferencePointDistanceInKm
       const RmedInKm = 6370
-      return (d1 * d2 * Math.pow(10, 3)) / (2 * RmedInKm * kValue)
+      const result = (d1 * d2 * Math.pow(10, 3)) / (2 * RmedInKm * kValue)
+      console.log('variableTerm:', { kValue, d1, d2, RmedInKm, result });
+      return result
     }
-    const atenuationKmed = commumTerm - variableTerm(data.kMedValue) - kMedPercent * (topFresnelElipsoid[maxInterferencePointIndex].elevation - sightLine[maxInterferencePointIndex].elevation) - maxInterferencePoint.elevation
-    const atenuationKmin = commumTerm - variableTerm(data.kMinValue) - kMinPercent * (topFresnelElipsoid[maxInterferencePointIndex].elevation - sightLine[maxInterferencePointIndex].elevation) - maxInterferencePoint.elevation
-    
-    if(atenuationKmin < atenuationKmed)  {
-      return kMinPercent === 1 ? 1 : 2 - kMinPercent 
+
+    const fresnelDiff = topFresnelElipsoid[maxInterferencePointIndex].elevation - sightLine[maxInterferencePointIndex].elevation
+    console.log('fresnelDiff (topo elipsoide - linha de visada):', fresnelDiff);
+    console.log('maxInterferencePoint.elevation:', maxInterferencePoint.elevation);
+
+    const atenuationKmed = commumTerm - variableTerm(data.kMedValue) - kMedPercent * fresnelDiff - maxInterferencePoint.elevation
+    const atenuationKmin = commumTerm - variableTerm(data.kMinValue) - kMinPercent * fresnelDiff - maxInterferencePoint.elevation
+    console.log('atenuações:', { atenuationKmed, atenuationKmin });
+
+    if(atenuationKmin < atenuationKmed) {
+      const result = kMinPercent === 1 ? 1 : 2 - kMinPercent
+      console.log('atenuationKmin < atenuationKmed → usando kMinPercent:', kMinPercent, '→ resultado:', result);
+      console.log('=== releasePercentFresnelRatio END ===');
+      return result
     } else {
-      return kMedPercent === 1 ? 1 : 2 - kMedPercent 
+      const result = kMedPercent === 1 ? 1 : 2 - kMedPercent
+      console.log('atenuationKmin >= atenuationKmed → usando kMedPercent:', kMedPercent, '→ resultado:', result);
+      console.log('=== releasePercentFresnelRatio END ===');
+      return result
     }
-    
   }
 
 
