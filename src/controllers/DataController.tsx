@@ -33,6 +33,7 @@ export default function DataController() {
   const [verticalRainAttenuationDb, setVerticalRainAttenuationDb] = useState('')
   const [horizontalRainUnavailability, setHorizontalRainUnavailability] = useState('')
   const [verticalRainUnavailability, setVerticalRainUnavailability] = useState('')
+  const [degradacao, setDegradacao] = useState<number>(0)
 
 
   // const interferenceLoss = InputController("Ptências interferentes em Dbm ex: -98, -90, -99")
@@ -47,7 +48,7 @@ export default function DataController() {
   const { calculateRainLoss ,azimuthInDegrees, bottomFresnelElipsoid, bottomFresnelElipsoidNoObstructed, calculateNoObstructedValues, calculateReflexiveRay, destinationPoint, destinationPointNoObstructed, distanceInMeters, elevationPath, fresnalElipsoidRatio,getMaxInterferencePoint, maxInterferencePoint,maxInterferencePointDistance, originPoint, originPointNoObstructed, reflexiveRay, setAzimuthInDegrees,setDestinationPoint, setDistanceInMeters,setElevationPath,setOriginalPoint,setSightLine, sightLine,sightLineNoObstructed,topFresnelElipsoid, topFresnelElipsoidNoObstructed, calculateAzimuthInDegrees, generateSightLine, genereteFresnelElipsoid, calculateRoughness, calculateRoughnessAtPoint, midRoughness, roughnessAtPoint, setMidcRoughness, setRoughnessAtPoint } = mapController
 
   const calculateTaxaPluviometricaButton = ButtonContoller('Calcular Taxa Pluviométrica', () => {
-      const { ArH, ArV, finalHorizontalLoss, finalVerticalLoss } = mapController.calculateRainLoss(Number(taxaPluviometricaInput.value), Number(frequency.value), Number(margem))
+      const { ArH, ArV, finalHorizontalLoss, finalVerticalLoss } = mapController.calculateRainLoss(Number(taxaPluviometricaInput.value), Number(frequency.value), 20)
       setHorizontalRainAttenuationDb(String(ArH))
       setVerticalRainAttenuationDb(String(ArV))
       setHorizontalRainUnavailability(String(finalHorizontalLoss))
@@ -83,7 +84,8 @@ export default function DataController() {
 
 function calculateSafeMargin() {
     const PNR = Number(signalPower.value) + Number(gainAntenaA.value) + Number(gainAntenaB.value) - (Number(cableLoss.value) * Number(cableeInMeters.value)) - (Number(connectoLoss.value) * 4) - calculateFreeSpaceAtenuation(distanceInMeters / 1000, Number(frequency.value))
-    const potenciasInterferentes = inputsInterferecePower.map((value, index) => (index < Number(inputsInterferenceNumberController.value) && value.value.trim())).map((value) => (Math.pow(10,(Number(value)/10))))
+    const potenciasInterferentes = inputsInterferecePower.filter((item) => (item.value !== '')).map((value, index) => (index < Number(inputsInterferenceNumberController.value) && value.value.trim())).map((value) => (Math.pow(10,(Number(value)/10))))
+    console.log('tamanho', potenciasInterferentes.length)
     let somaPotenciasInterferentes = 0
     potenciasInterferentes.map((value)=>{
       somaPotenciasInterferentes += value
@@ -91,7 +93,12 @@ function calculateSafeMargin() {
     
     const itDb = 10 * Math.log10(somaPotenciasInterferentes) 
     const diDb = 10 * Math.log10(Math.pow(10,-9.5) + Math.pow(10, itDb/10)) + 95
-    const margin = PNR - Number(receptionThreshold.value) -diDb
+    const margin = PNR - Number(receptionThreshold.value) - function () {return (inputsInterferenceNumberController.value === '0' || inputsInterferenceNumberController.value === '' ) ? 0 : diDb}()
+    console.log(PNR, receptionThreshold.value, margin)
+
+    console.log('teste da coisa',diDb)
+
+    setDegradacao(function () {return (inputsInterferenceNumberController.value === '0' || inputsInterferenceNumberController.value === '' ) ? 0 : diDb}())
     setMargem(`${margin}`)
     setPnrDb(`${PNR}`)
   }
@@ -257,6 +264,7 @@ function calculateSafeMargin() {
     verticalRainAttenuationDb,
     horizontalRainUnavailability,
     verticalRainUnavailability,
-    calculateTaxaPluviometricaButton
+    calculateTaxaPluviometricaButton,
+    degradacao
   }
 }

@@ -5,7 +5,7 @@ import type DataController from "../../../controllers/DataController";
 import './PowerBalanceForm.css'
 
 function formatDb(value: number) {
-  return Number.isFinite(value) ? `${value.toFixed(2)} dB` : "-"
+  return Number.isFinite(value) ? `${value.toFixed(2)} dBm` : "-"
 }
 
 export default function PowerBalanceForm({dataController}: {dataController: ReturnType<typeof DataController>}): React.ReactElement {
@@ -50,14 +50,20 @@ export default function PowerBalanceForm({dataController}: {dataController: Retu
           <div className="power-balance-result-title">Margem de segurança</div>
 
           <div className="power-balance-result-line">
-            <span className="power-balance-result-label">PNR</span>
+            <span className="power-balance-result-label">Potência nominal de recepção</span>
             <span className="power-balance-result-value">{formatDb(pnr)}</span>
+          </div>
+
+          <div className="power-balance-result-line">
+            <span className="power-balance-result-label">Limiar Degradado</span>
+            <span className="power-balance-result-value">{formatDb(dataController.degradacao)}</span>
           </div>
 
           <div className="power-balance-result-line">
             <span className="power-balance-result-label">Margem de segurança</span>
             <span className="power-balance-result-value">{formatDb(margem)}</span>
           </div>
+
         </div>
       )}
     </div>

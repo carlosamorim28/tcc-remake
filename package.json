@@ -10,7 +10,8 @@
     "test": "jest -c jest.config.cjs --runInBand",
     "test:watch": "jest -c jest.config.cjs --watch --runInBand",
     "test:coverage": "jest -c jest.config.cjs --coverage --runInBand",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "docs:capture-manual": "node outputs/capture-manual-screenshots.mjs"
   },
   "dependencies": {
     "@react-google-maps/api": "^2.20.8",
@@ -36,6 +37,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.3.0",
     "jest-environment-jsdom": "^30.3.0",
+    "playwright": "^1.50.1",
     "ts-jest": "^29.4.9",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.48.0",
