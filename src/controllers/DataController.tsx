@@ -22,7 +22,7 @@ export default function DataController() {
   const receptionThreshold = InputController("Limiar de Rx [dbm]")
   const connectoLoss = InputController("Perda por conector [dB]")
   const cableLoss = InputController("Perda no Guia de onda [dB/m]")
-  const cableeInMeters = InputController("Comprimento do guia de onda [m]")
+  const cableeInMeters = InputController("Comprimento total do guia de onda nas duas estações[m]")
   const technicalReserve = InputController("Reserva técnica [m]")
   const duplexorLoss = InputController("Perdas no buplxadir [dB]")
   const gainAntenaA = InputController("Ganho da antena A [dBi]")
