@@ -65,7 +65,7 @@ function calculateRainLoss(rainfallRate: number, frequencyGz: number, margem: nu
 
     function calculateIndisponibilidadeVertical(){
       console.log('--- calculateIndisponibilidadeVertical ---');
-      const log = Math.log((8.33 * margem) / ArV)
+      const log = Math.log10((8.33 * margem) / ArV)
       console.log('log:', log);
       const sqtr = 40.29 - 23.25*log < 0 ? 0 : Math.sqrt(40.29 - 23.25*log)
       console.log('sqtr:', sqtr, '| valor antes do clamp:', 40.29 - 23.25*log);
@@ -78,7 +78,7 @@ function calculateRainLoss(rainfallRate: number, frequencyGz: number, margem: nu
 
     function calculateIndisponibilidadeHorizontal(){
       console.log('--- calculateIndisponibilidadeHorizontal ---');
-      const log = Math.log((8.33 * margem) / ArH)
+      const log = Math.log10((8.33 * margem) / ArH)
       console.log('log:', log);
       const sqtr = 40.29 - 23.25*log < 0 ? 0 : Math.sqrt(40.29 - 23.25*log)
       console.log('sqtr:', sqtr, '| valor antes do clamp:', 40.29 - 23.25*log);
@@ -402,7 +402,7 @@ function calculateRainLoss(rainfallRate: number, frequencyGz: number, margem: nu
     function variableTerm(kValue: number): number {
       const d1 = maxInterferencePointDistanceInKm
       const d2 = distanceInKm - maxInterferencePointDistanceInKm
-      const RmedInKm = 6370
+      const fInKm = 6370
       const result = (d1 * d2 * Math.pow(10, 3)) / (2 * RmedInKm * kValue)
       console.log('variableTerm:', { kValue, d1, d2, RmedInKm, result });
       return result
