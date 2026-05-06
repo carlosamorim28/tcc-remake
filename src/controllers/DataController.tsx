@@ -21,8 +21,10 @@ export default function DataController() {
   const signalPower = InputController("Potência de Tx [dBm]")
   const receptionThreshold = InputController("Limiar de Rx [dbm]")
   const connectoLoss = InputController("Perda por conector [dB]")
-  const cableLoss = InputController("Perda no Guia de onda[dB/m]")
-  const cableeInMeters = InputController("Comprimento do cabo [m]")
+  const cableLoss = InputController("Perda no Guia de onda [dB/m]")
+  const cableeInMeters = InputController("Comprimento do guia de onda [m]")
+  const technicalReserve = InputController("Reserva técnica [m]")
+  const duplexorLoss = InputController("Perdas no buplxadir [dB]")
   const gainAntenaA = InputController("Ganho da antena A [dBi]")
   const gainAntenaB = InputController("Ganho da antena B [dBi]")
   const useTecnicalNormCheckbox = CheckboxController("Usar norma técnica", false)
@@ -83,7 +85,7 @@ export default function DataController() {
  
 
 function calculateSafeMargin() {
-    const PNR = Number(signalPower.value) + Number(gainAntenaA.value) + Number(gainAntenaB.value) - (Number(cableLoss.value) * Number(cableeInMeters.value)) - (Number(connectoLoss.value) * 4) - calculateFreeSpaceAtenuation(distanceInMeters / 1000, Number(frequency.value))
+    const PNR = Number(signalPower.value) + Number(gainAntenaA.value) + Number(gainAntenaB.value) - (Number(cableLoss.value) * (Number(cableeInMeters.value) + Number(technicalReserve.value))) - (Number(connectoLoss.value) * 4) - calculateFreeSpaceAtenuation(distanceInMeters / 1000, Number(frequency.value)) - 2 * Number(duplexorLoss.value)
     const potenciasInterferentes = inputsInterferecePower.filter((item) => (item.value !== '')).map((value, index) => (index < Number(inputsInterferenceNumberController.value) && value.value.trim())).map((value) => (Math.pow(10,(Number(value)/10))))
     console.log('tamanho', potenciasInterferentes.length)
     let somaPotenciasInterferentes = 0
@@ -265,6 +267,8 @@ function calculateSafeMargin() {
     horizontalRainUnavailability,
     verticalRainUnavailability,
     calculateTaxaPluviometricaButton,
-    degradacao
+    degradacao,
+    duplexorLoss,
+    technicalReserve
   }
 }

@@ -28,13 +28,19 @@ export default function PowerBalanceForm({dataController}: {dataController: Retu
         <Input controller={dataController.gainAntenaB} />
       </div>
       <div className="power-balance-form-container-input-2-collumns">
+        <Input controller={dataController.cableeInMeters} />
+      </div>
+      <div className="power-balance-form-container-input-2-collumns">
+        <Input controller={dataController.technicalReserve} />
+      </div>
+      <div className="power-balance-form-container-input-full-width">
         <Input controller={dataController.cableLoss} />
       </div>
       <div className="power-balance-form-container-input-2-collumns">
-        <Input controller={dataController.cableeInMeters} />
-      </div>
-      <div className="power-balance-form-container-input-full-width">
         <Input controller={dataController.connectoLoss} />
+      </div>
+      <div className="power-balance-form-container-input-2-collumns">
+        <Input controller={dataController.duplexorLoss} />
       </div>
 
       <div className="power-balance-form-container-input-full-width">
