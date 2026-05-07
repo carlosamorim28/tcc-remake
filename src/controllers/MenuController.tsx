@@ -6,7 +6,8 @@ const menuInitialOptions = [
     {label: 'Dados do Enlace', isSelected: false},
     {label: 'Rugosidade e Raio Refletido', isSelected: false},
     {label: 'Balanço do potência', isSelected: false},
-    {label: 'Atenuação Por Chuva', isSelected: false}
+    {label: 'Atenuação Por Chuva', isSelected: false},
+    {label: 'Devanecimento Plano', isSelected: false},
   ]
 
   export default function MenuController(): MenuControlleerInterface {

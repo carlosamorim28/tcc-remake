@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import ButtonContoller from "./ButtonController";
 import CheckboxController from "./CheckboxController";
 import { InputController } from "./InputController";
+import { SelectController } from "./SelectController";
 import MapController from "./MapController";
 import MenuController from "./MenuController";
 import { calculateFreeSpaceAtenuation } from "../helpers/helper";
@@ -44,10 +45,82 @@ export default function DataController() {
   
   const [margem, setMargem] = useState('')
   const [pnrDb, setPnrDb] = useState('')
+  const [devanecimentoPlano, setDevanecimentoPlano] = useState(0)
+
+  const climaTypeSelect = SelectController(
+    "Clima",
+    [
+      { label: "0 (qc=0.32)", value: "0" },
+      { label: "1 (qc=0.68)", value: "1" },
+      { label: "2 (qc=1.00)", value: "2" },
+      { label: "3 (qc=1.32)", value: "3" },
+    ],
+    true,
+    "0",
+  )
+
+  const relevoTypeSelect = SelectController(
+    "Relevo",
+    [
+      { label: "agua", value: "agua" },
+      { label: "urbano ou plano", value: "urbano ou plano" },
+      { label: "normal", value: "normal" },
+      { label: "morros", value: "morros" },
+      { label: "montanha", value: "montanha" },
+    ],
+    true,
+    "normal",
+  )
   
   const mapController =  MapController()
   const menuController = MenuController()
-  const { calculateRainLoss ,azimuthInDegrees, bottomFresnelElipsoid, bottomFresnelElipsoidNoObstructed, calculateNoObstructedValues, calculateReflexiveRay, destinationPoint, destinationPointNoObstructed, distanceInMeters, elevationPath, fresnalElipsoidRatio,getMaxInterferencePoint, maxInterferencePoint,maxInterferencePointDistance, originPoint, originPointNoObstructed, reflexiveRay, setAzimuthInDegrees,setDestinationPoint, setDistanceInMeters,setElevationPath,setOriginalPoint,setSightLine, sightLine,sightLineNoObstructed,topFresnelElipsoid, topFresnelElipsoidNoObstructed, calculateAzimuthInDegrees, generateSightLine, genereteFresnelElipsoid, calculateRoughness, calculateRoughnessAtPoint, midRoughness, roughnessAtPoint, setMidcRoughness, setRoughnessAtPoint } = mapController
+  const {
+    calculateNoObstructedValues,
+    calculateReflexiveRay,
+    destinationPoint,
+    destinationPointNoObstructed,
+    distanceInMeters,
+    elevationPath,
+    fresnalElipsoidRatio,
+    getMaxInterferencePoint,
+    originPoint,
+    reflexiveRay,
+    setDestinationPoint,
+    setDistanceInMeters,
+    setElevationPath,
+    setOriginalPoint,
+    sightLine,
+    topFresnelElipsoidNoObstructed,
+    calculateAzimuthInDegrees,
+    generateSightLine,
+    genereteFresnelElipsoid,
+    midRoughness,
+    roughnessAtPoint,
+  } = mapController
+
+
+  function calculateDevanecimentoPlano(climaType: string, releveType: string) {
+    let qt: number = 0;
+    let qc: number = 0;
+    const n: number = Number(climaType);
+
+    if(releveType === 'agua') qt = 4.8
+    if(releveType === 'urbano ou plano') qt = 2.4
+    if(releveType === 'normal') qt = 1.0
+    if( releveType === 'morros') qt = 0.6
+    if(releveType === 'montanha') qt = 0.38
+
+    if(n === 0) qc = 0.32
+    if(n === 1) qc = 0.68
+    if(n === 2) qc = 1
+    if(n === 3) qc = 1.32
+
+    const distanceInKm = distanceInMeters / 1000
+
+    const P0 = 0.37 * qt * qc * (Number(frequency.value)/ 4.7) * Math.pow(distanceInKm / 50, 3)
+    const Pf = P0 * Math.pow(10, (-margem / 10))
+    setDevanecimentoPlano(Pf)
+  }
 
   const calculateTaxaPluviometricaButton = ButtonContoller('Calcular Taxa Pluviométrica', () => {
       const { ArH, ArV, finalHorizontalLoss, finalVerticalLoss } = mapController.calculateRainLoss(Number(taxaPluviometricaInput.value), Number(frequency.value), 20)
@@ -81,6 +154,13 @@ export default function DataController() {
   const btnCalculateSafeMargin = ButtonContoller('Calcular Margem de segurança', ()=>{
     calculateSafeMargin()
   })
+
+  const calculateDevanecimentoPlanoButton = ButtonContoller(
+    "Calcular devanecimento plano",
+    () => {
+      calculateDevanecimentoPlano(climaTypeSelect.value, relevoTypeSelect.value)
+    },
+  )
 
  
 
@@ -269,6 +349,11 @@ function calculateSafeMargin() {
     calculateTaxaPluviometricaButton,
     degradacao,
     duplexorLoss,
-    technicalReserve
+    technicalReserve,
+    calculateDevanecimentoPlano,
+    calculateDevanecimentoPlanoButton,
+    climaTypeSelect,
+    relevoTypeSelect,
+    devanecimentoPlano,
   }
 }

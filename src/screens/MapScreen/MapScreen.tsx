@@ -1,10 +1,8 @@
-import Button from "../../components/Button/Button"
-import Graph from "../../components/Graph/Graph"
-import Input from "../../components/Input/Input"
 import Map from "../../components/Map/Map"
 import { Menu } from "../../components/Menu/Menu"
 import DataController from "../../controllers/DataController"
 import DataSession from "./DataSession/DataSession"
+import FlatFadingSession from "./FlatFadingSession/FlatFadingSession"
 import GeneralSession from "./GeneralSession/GeneralSession"
 import "./MapScreen.css"
 import PowerBalanceForm from "./PowerBalance/PowerBalanceForm"
@@ -37,6 +35,9 @@ export default function MapScreen(): React.ReactElement {
           {menuController.menuOptions[4].isSelected && (
             <RainSeession dataController={dataController} />
           )}
+          {menuController.menuOptions[5].isSelected && (
+            <FlatFadingSession dataController={dataController} />
+          )}
         </div>
       </div>
 
@@ -45,8 +46,6 @@ export default function MapScreen(): React.ReactElement {
         <div className="map-contianer">
           <Map controller={dataController.mapController} />
         </div>
-        {/* <Input /> */}
-
       </div>
     </div>
   )
