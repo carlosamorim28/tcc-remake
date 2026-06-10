@@ -47,6 +47,18 @@ export default function RainSeession({dataController}: {dataController: ReturnTy
                 {formatRawFraction(dataController.horizontalRainUnavailability)}
               </span>
             </div>
+            <div className="rain-session-result-line rain-session-result-line-sub">
+              <span className="rain-session-result-label">Margem degrada por chuva</span>
+              <span className="rain-session-result-value rain-session-result-fraction">
+                {dataController.marginWithRainLossHorizontal} dB
+              </span>
+            </div>
+            <div className="rain-session-result-line rain-session-result-line-sub">
+              <span className="rain-session-result-label">Viabilidade</span>
+              <span className="rain-session-result-value rain-session-result-fraction">
+                {dataController.horizontalRainViability} 
+              </span>
+            </div>
           </div>
 
           <div className="rain-session-result-polarization">
@@ -59,6 +71,12 @@ export default function RainSeession({dataController}: {dataController: ReturnTy
               <span className="rain-session-result-label">Indisponibilidade</span>
               <span className="rain-session-result-value rain-session-result-fraction">
                 {formatRawFraction(dataController.verticalRainUnavailability)}
+              </span>
+            </div>
+             <div className="rain-session-result-line rain-session-result-line-sub">
+              <span className="rain-session-result-label">Viabilidade</span>
+              <span className="rain-session-result-value rain-session-result-fraction">
+                {dataController.verticalRainViability} 
               </span>
             </div>
           </div>

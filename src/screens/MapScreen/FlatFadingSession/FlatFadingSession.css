@@ -1,0 +1,30 @@
+.flat-fading-result-card {
+  grid-column: span 4;
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid rgba(127, 127, 127, 0.35);
+  background: rgba(127, 127, 127, 0.12);
+}
+
+.flat-fading-result-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.flat-fading-result-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+}
+
+.flat-fading-result-label {
+  opacity: 0.9;
+}
+
+.flat-fading-result-value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+

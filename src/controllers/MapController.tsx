@@ -402,7 +402,7 @@ function calculateRainLoss(rainfallRate: number, frequencyGz: number, margem: nu
     function variableTerm(kValue: number): number {
       const d1 = maxInterferencePointDistanceInKm
       const d2 = distanceInKm - maxInterferencePointDistanceInKm
-      const fInKm = 6370
+      const RmedInKm = 6370
       const result = (d1 * d2 * Math.pow(10, 3)) / (2 * RmedInKm * kValue)
       console.log('variableTerm:', { kValue, d1, d2, RmedInKm, result });
       return result

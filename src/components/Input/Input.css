@@ -17,6 +17,8 @@
 }
 
 .label {
-  line-height: 1px;
+  line-height: 1.2;
   padding: 0px;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
