@@ -8,6 +8,8 @@ const menuInitialOptions = [
     {label: 'Balanço do potência', isSelected: false},
     {label: 'Atenuação Por Chuva', isSelected: false},
     {label: 'Devanecimento Plano', isSelected: false},
+    {label: 'Devanecimento Seletivo', isSelected: false},
+    {label: 'Relatório técnico', isSelected: false},
   ]
 
   export default function MenuController(): MenuControlleerInterface {

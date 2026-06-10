@@ -3,11 +3,13 @@ import { Menu } from "../../components/Menu/Menu"
 import DataController from "../../controllers/DataController"
 import DataSession from "./DataSession/DataSession"
 import FlatFadingSession from "./FlatFadingSession/FlatFadingSession"
+import SelectiveFadingSession from "./SelectiveFadingSession/SelectiveFadingSession"
 import GeneralSession from "./GeneralSession/GeneralSession"
 import "./MapScreen.css"
 import PowerBalanceForm from "./PowerBalance/PowerBalanceForm"
 import RainSeession from "./RainSession/RainSession"
 import RoughnessSession from "./RoughnessSession/RoughnessSession"
+import ReportSession from "./ReportSession/ReportSession"
 export default function MapScreen(): React.ReactElement {
 
   const dataController = DataController()
@@ -37,6 +39,12 @@ export default function MapScreen(): React.ReactElement {
           )}
           {menuController.menuOptions[5].isSelected && (
             <FlatFadingSession dataController={dataController} />
+          )}
+          {menuController.menuOptions[6].isSelected && (
+            <SelectiveFadingSession dataController={dataController} />
+          )}
+          {menuController.menuOptions[7].isSelected && (
+            <ReportSession dataController={dataController} />
           )}
         </div>
       </div>

@@ -5,7 +5,7 @@
   overflow-x: auto;
   background-color: gray;
   gap: 8px;
-  justify-content: space-around;
+  justify-content: flex-start;
   align-items: center;
   
   flex: 1;
@@ -19,8 +19,13 @@
   justify-content: center;
   align-items: center;
   border-radius: 12px;
-  min-width: 100px;
+  width: fit-content;
+  min-width: fit-content;
   cursor: pointer;
+}
+
+.menu-item-container span {
+  white-space: nowrap;
 }
 .menu-item-container:hover {
   opacity: 90%;

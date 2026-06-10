@@ -25,7 +25,7 @@ export default function DataController() {
   const cableLoss = InputController("Perda no Guia de onda [dB/m]")
   const cableeInMeters = InputController("Comprimento total do guia de onda nas duas estações[m]")
   const technicalReserve = InputController("Reserva técnica [m]")
-  const duplexorLoss = InputController("Perdas no buplxadir [dB]")
+  const duplexorLoss = InputController("Perdas nos duplexadores [dB]")
   const gainAntenaA = InputController("Ganho da antena A [dBi]")
   const gainAntenaB = InputController("Ganho da antena B [dBi]")
   const useTecnicalNormCheckbox = CheckboxController("Usar norma técnica", false)
@@ -33,9 +33,14 @@ export default function DataController() {
 
   const [isFirst, setIsFirst] = useState<boolean>(true)
   const [horizontalRainAttenuationDb, setHorizontalRainAttenuationDb] = useState('')
+  const [marginWithRainLossVertical, setMarginWithRainLossVertical] = useState('');
+  const [marginWithRainLossHorizontal, setMarginWithRainLossHorizontal] = useState('');
   const [verticalRainAttenuationDb, setVerticalRainAttenuationDb] = useState('')
   const [horizontalRainUnavailability, setHorizontalRainUnavailability] = useState('')
   const [verticalRainUnavailability, setVerticalRainUnavailability] = useState('')
+  const [verticalRainViability, setVerticalRainViabitility] = useState('')
+  const [horizontalRainViability, setHorizontalRainViabitility] = useState('')
+  const [viabilidadeDevanecimento, setViabilidadeDevanecimento] = useState('')
   const [degradacao, setDegradacao] = useState<number>(0)
 
 
@@ -46,6 +51,26 @@ export default function DataController() {
   const [margem, setMargem] = useState('')
   const [pnrDb, setPnrDb] = useState('')
   const [devanecimentoPlano, setDevanecimentoPlano] = useState(0)
+  const [devanecimentoSeletivo, setDevanecimentoSeletivo] = useState({
+    ps6: 0,
+    pd: 0,
+    pt: 0,
+  })
+
+  const roloffInput = InputController("Rolloff")
+  const tipoRadioclimaSelect = SelectController(
+    "Tipo radioclima",
+    [
+      { label: "1 (frac=0.05)", value: "1" },
+      { label: "2 (frac=0.15)", value: "2" },
+      { label: "3 (frac=0.30)", value: "3" },
+      { label: "4 (frac=0.45)", value: "4" },
+      { label: "5 (frac=0.60)", value: "5" },
+      { label: "6 (frac=0.80)", value: "6" },
+    ],
+    true,
+    "1",
+  )
 
   const climaTypeSelect = SelectController(
     "Clima",
@@ -98,6 +123,81 @@ export default function DataController() {
     roughnessAtPoint,
   } = mapController
 
+  function calculateDevanecimentoSeletivo(roloff: number, tipoRadioclima: number) {
+    let c6 = 0
+    let w6 = 0
+    let aSobreT6 = 0
+    let c3 = 0
+    let w3 = 0
+    let aSobreT3 = 0
+    let frac = 0
+
+    switch (tipoRadioclima) {
+      case 1:
+        frac = 0.05
+        break
+      case 2:
+        frac = 0.15
+        break
+      case 3:
+        frac = 0.30
+        break
+      case 4:
+        frac = 0.45
+        break
+      case 5:
+        frac = 0.60
+        break
+      case 6:
+        frac = 0.80
+        break
+      default:
+        frac = 0
+    }
+
+    const distanceInKm = distanceInMeters / 1000
+
+    const i =
+      Math.abs(mapController.originPoint.elevation - mapController.destinationPoint.elevation) /
+      distanceInKm
+
+    const r = frac * Math.pow(distanceInKm, 0.5) + Math.exp(-0.3 * i)
+
+    const v2 = (5 / 7) * r
+
+    if (roloff <= 0.3) {
+      c6 = 0.981
+      w6 = 35
+      aSobreT6 = 0.017
+      c3 = 0.951
+      w3 = 32.2
+      aSobreT3 = 0.014
+    } else {
+      c6 = 33
+      w6 = 0.981
+      aSobreT6 = 0.016
+      c3 = 0.0951
+      w3 = 33
+      aSobreT3 = 0.013
+    }
+
+    const ps6 = (c6 * w6 * aSobreT6 - c3 * w3 * aSobreT3) * (Math.pow(r, 2) * v2)
+
+    const n = 1 - Math.exp(-0.2 * Math.pow(devanecimentoPlano, 0.75))
+
+    const pd = ps6 * n
+
+    const pt = pd * devanecimentoPlano
+    const valor = distanceInKm / (2500 * 0.0054)
+    if( pt < valor){
+      setViabilidadeDevanecimento('Viável')
+    } else {
+      setViabilidadeDevanecimento('Inviável')
+    }
+
+    setDevanecimentoSeletivo({ ps6, pd, pt })
+  }
+
 
   function calculateDevanecimentoPlano(climaType: string, releveType: string) {
     let qt: number = 0;
@@ -126,8 +226,27 @@ export default function DataController() {
       const { ArH, ArV, finalHorizontalLoss, finalVerticalLoss } = mapController.calculateRainLoss(Number(taxaPluviometricaInput.value), Number(frequency.value), 20)
       setHorizontalRainAttenuationDb(String(ArH))
       setVerticalRainAttenuationDb(String(ArV))
+      setMarginWithRainLossHorizontal(String(Number(margem) - ArH))
+      setMarginWithRainLossVertical(String(Number(margem) - ArV))
       setHorizontalRainUnavailability(String(finalHorizontalLoss))
       setVerticalRainUnavailability(String(finalVerticalLoss))
+
+      const distanceInKm = distanceInMeters / 1000
+
+      const valor = (distanceInKm / 2500) * 0.0003
+
+      if( finalHorizontalLoss < valor){
+        setVerticalRainViabitility('Viável')
+      } else {
+        setVerticalRainViabitility('Inviável')
+      }
+      if( finalVerticalLoss < valor){
+        setHorizontalRainViabitility('Viável')
+      } else {
+        setHorizontalRainViabitility('Inviável')
+      }
+
+
   })
 
   const generateGraphButton = ButtonContoller("Gerar gráfico Manualmente", () =>{
@@ -159,6 +278,16 @@ export default function DataController() {
     "Calcular devanecimento plano",
     () => {
       calculateDevanecimentoPlano(climaTypeSelect.value, relevoTypeSelect.value)
+    },
+  )
+
+  const calculateDevanecimentoSeletivoButton = ButtonContoller(
+    "Calcular devanecimento seletivo",
+    () => {
+      calculateDevanecimentoSeletivo(
+        Number(roloffInput.value),
+        Number(tipoRadioclimaSelect.value),
+      )
     },
   )
 
@@ -355,5 +484,14 @@ function calculateSafeMargin() {
     climaTypeSelect,
     relevoTypeSelect,
     devanecimentoPlano,
+    roloffInput,
+    tipoRadioclimaSelect,
+    calculateDevanecimentoSeletivoButton,
+    devanecimentoSeletivo,
+    marginWithRainLossVertical,
+    marginWithRainLossHorizontal,
+    verticalRainViability,
+    horizontalRainViability,
+    viabilidadeDevanecimento
   }
 }
