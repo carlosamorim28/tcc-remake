@@ -417,12 +417,12 @@ function calculateRainLoss(rainfallRate: number, frequencyGz: number, margem: nu
     console.log('atenuações:', { atenuationKmed, atenuationKmin });
 
     if(atenuationKmin < atenuationKmed) {
-      const result = kMinPercent === 1 ? 1 : 2 - kMinPercent
+      const result = kMinPercent
       console.log('atenuationKmin < atenuationKmed → usando kMinPercent:', kMinPercent, '→ resultado:', result);
       console.log('=== releasePercentFresnelRatio END ===');
       return result
     } else {
-      const result = kMedPercent === 1 ? 1 : 2 - kMedPercent
+      const result = kMedPercent
       console.log('atenuationKmin >= atenuationKmed → usando kMedPercent:', kMedPercent, '→ resultado:', result);
       console.log('=== releasePercentFresnelRatio END ===');
       return result
@@ -446,17 +446,17 @@ function calculateRainLoss(rainfallRate: number, frequencyGz: number, margem: nu
 
     while(true){
       let sightLineIsHigher = true
-      const sightLineToCalc = generateSightLineWithParams(originPointToCalc, destinationPointToCalc).map((point, index) => { return { ...point, elevation: point.elevation - fresnalElipsoidRatio[index] } })
-      
-      for(let i = 0 ; i < elevationPath.length; i++) {
-        if((sightLineToCalc[i].elevation * releasePercentFresnelRatio({
+      const sightLineToCalc = generateSightLineWithParams(originPointToCalc, destinationPointToCalc).map((point, index) => { return { ...point, elevation: point.elevation - (fresnalElipsoidRatio[index] * releasePercentFresnelRatio({
           frequency: frequence,
           kMedValue: -57,
           kMinValue: -35,
           towerAHeigth,
           towerBHeigth,
           useTecnicalNorm
-        }))  > elevationPath[i].elevation) {
+        }))  } })
+      
+      for(let i = 0 ; i < elevationPath.length; i++) {
+        if((sightLineToCalc[i].elevation)  > elevationPath[i].elevation) {
           continue
         } else {
           sightLineIsHigher = false
