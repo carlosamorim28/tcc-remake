@@ -21,6 +21,60 @@ type LatLng = {
 
 function Map({controller}: {controller: MapControllerInterface}) {
   const {destinationPoint, originPoint, setDestinationPoint, setOriginalPoint} = controller
+    
+   const handleDragEndOrigin = (event) => {
+    const elevationService = new google.maps.ElevationService();
+    const lat = event.latLng.lat();
+    const lng = event.latLng.lng();
+
+    elevationService.getElevationForLocations(
+      { locations: [{ lat, lng }] },
+      (results, status) => {
+        if (status === "OK" && results && results.length > 0) {
+          const elevation = results[0].elevation;
+
+          const newPoint: LatLng = {
+            lat,
+            lng,
+            elevation,
+          };
+
+          setOriginalPoint(newPoint);
+        } else {
+          console.error("Erro ao obter elevação:", status);
+        }
+      })
+
+    
+
+    console.log("Nova posição:", lat, lng);
+  };
+
+  const handleDragEndOriginDestination = (event) => {
+    const elevationService = new google.maps.ElevationService();
+    const lat = event.latLng.lat();
+    const lng = event.latLng.lng();
+
+    elevationService.getElevationForLocations(
+      { locations: [{ lat, lng }] },
+      (results, status) => {
+        if (status === "OK" && results && results.length > 0) {
+          const elevation = results[0].elevation;
+
+          const newPoint: LatLng = {
+            lat,
+            lng,
+            elevation,
+          };
+
+          setDestinationPoint(newPoint);
+        } else {
+          console.error("Erro ao obter elevação:", status);
+        }
+      })
+
+  };
+
   
   const handleMapClick = useCallback(
     (event: google.maps.MapMouseEvent) => {
@@ -65,8 +119,8 @@ function Map({controller}: {controller: MapControllerInterface}) {
         zoom={12}
         
       >
-        <Marker key={'origin'} position={originPoint} />
-        <Marker key={'destination'} position={destinationPoint} />
+        <Marker key={'origin'} position={originPoint} onDragEnd={handleDragEndOrigin} draggable />
+        <Marker key={'destination'} position={destinationPoint} onDragEnd={handleDragEndOriginDestination} draggable/>
         {/* {markers.map((marker, index) => (
           <Marker key={index} position={marker} />
         ))} */}
