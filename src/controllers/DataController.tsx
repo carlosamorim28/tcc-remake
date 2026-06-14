@@ -471,7 +471,7 @@ function calculateSafeMargin() {
   useEffect(() =>{
     const d1 = (distanceInMeters - maxInterferencePointDistance) / 1000
     const d2 = maxInterferencePointDistance / 1000
-    const K = 4 / 3
+    const K = Number(kFactor) > 4/3 ? Number(kFactor) : 4/3
     const Hu = (d1 * d2) / (12.7 * K)
     setHu(Hu)
 
