@@ -20,7 +20,7 @@ type LatLng = {
 };
 
 function Map({controller}: {controller: MapControllerInterface}) {
-  const {destinationPoint, originPoint, setDestinationPoint, setOriginalPoint} = controller
+  const {destinationPoint, originPoint, setDestinationPoint, setOriginalPoint, setChangeOrigin} = controller
     
    const handleDragEndOrigin = (event) => {
     const elevationService = new google.maps.ElevationService();
@@ -40,6 +40,7 @@ function Map({controller}: {controller: MapControllerInterface}) {
           };
 
           setOriginalPoint(newPoint);
+          setChangeOrigin('map')
         } else {
           console.error("Erro ao obter elevação:", status);
         }
@@ -68,6 +69,7 @@ function Map({controller}: {controller: MapControllerInterface}) {
           };
 
           setDestinationPoint(newPoint);
+          setChangeOrigin('map')
         } else {
           console.error("Erro ao obter elevação:", status);
         }
@@ -95,9 +97,11 @@ function Map({controller}: {controller: MapControllerInterface}) {
           };
 
           if (originPoint.lat === 0 && originPoint.lng === 0) {
-            setOriginalPoint(newPoint);
+            setOriginalPoint(newPoint);  
+            setChangeOrigin('map')          
           } else {
             setDestinationPoint(newPoint);
+            setChangeOrigin('map')
           } 
         } else {
           console.error("Erro ao obter elevação:", status);
@@ -106,7 +110,7 @@ function Map({controller}: {controller: MapControllerInterface}) {
 
     },
     
-    [originPoint, setOriginalPoint, setDestinationPoint]
+    [originPoint, setOriginalPoint, setDestinationPoint, setChangeOrigin]
   );
 
   return (

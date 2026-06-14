@@ -47,6 +47,8 @@ export default interface MapControllerInterface {
     ArV: number
     finalVerticalLoss: number
     finalHorizontalLoss: number
-  }
+  },
+  changeOrigin: string,
+  setChangeOrigin: (value: string) => void
   
 }
