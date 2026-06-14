@@ -9,6 +9,7 @@ import MenuController from "./MenuController";
 import { calculateFreeSpaceAtenuation } from "../helpers/helper";
 import { calcularDistanciaHaversine } from "../helpers/helper";
 import { useInterferencePowerControllers } from "./useInterferencePowerControllers";
+import type LatLng from "../models/LatLng";
 
 export default function DataController() {
   const towerAInput = InputController("Torre A", true)
@@ -121,6 +122,8 @@ export default function DataController() {
     genereteFresnelElipsoid,
     midRoughness,
     roughnessAtPoint,
+    changeOrigin,
+    setChangeOrigin
   } = mapController
 
   function calculateDevanecimentoSeletivo(roloff: number, tipoRadioclima: number) {
@@ -249,22 +252,67 @@ export default function DataController() {
 
   })
 
-  const generateGraphButton = ButtonContoller("Gerar gráfico Manualmente", () =>{
-    const latLngA = towerAInput.value.split(',')
-    const latLngB = towerBInput.value.split(',')
+function parseTowerCoordinates(value: string): { lat: number; lng: number } | null {
+  const [latRaw, lngRaw] = value.split(",")
+  if (latRaw === undefined || lngRaw === undefined) return null
 
-    setOriginalPoint({
-      lat: Number(latLngA[0].trim()),
-      lng: Number(latLngA[1].trim()),
-      elevation: originPoint.elevation
-    })
+  const lat = Number(latRaw.trim())
+  const lng = Number(lngRaw.trim())
 
-    setDestinationPoint({
-      lat: Number(latLngB[0].trim()),
-      lng: Number(latLngB[1].trim()),
-      elevation: originPoint.elevation
-    })
+  if (Number.isNaN(lat) || Number.isNaN(lng)) return null
+  if (lat === 0 && lng === 0) return null
+
+  return { lat, lng }
+}
+
+function getElevationForLocation(lat: number, lng: number): Promise<LatLng | null> {
+  return new Promise((resolve) => {
+    const elevator = new google.maps.ElevationService()
+    elevator.getElevationForLocations(
+      { locations: [{ lat, lng }] },
+      (results, status) => {
+        if (status === "OK" && results && results.length > 0) {
+          resolve({
+            lat,
+            lng,
+            elevation: results[0].elevation,
+          })
+          return
+        }
+
+        console.error("Erro ao obter elevação:", status)
+        resolve(null)
+      },
+    )
   })
+}
+
+const generateGraphButton = ButtonContoller(
+  "Gerar gráfico Manualmente",
+  async () => {
+    const origemCoords = parseTowerCoordinates(towerAInput.value)
+    const destinoCoords = parseTowerCoordinates(towerBInput.value)
+
+    if (!origemCoords || !destinoCoords) {
+      console.error("Coordenadas inválidas nos campos Torre A / Torre B.")
+      return
+    }
+
+    const [origem, destino] = await Promise.all([
+      getElevationForLocation(origemCoords.lat, origemCoords.lng),
+      getElevationForLocation(destinoCoords.lat, destinoCoords.lng),
+    ])
+
+    if (!origem || !destino) {
+      console.error("Não foi possível obter a elevação dos dois pontos.")
+      return
+    }
+
+    setOriginalPoint(origem)
+    setDestinationPoint(destino)
+    setChangeOrigin("input")
+  },
+);
 
    const btnAttFresnelElipsoid = ButtonContoller('Recalcular Gráfico', ()=>{
     genereteFresnelElipsoid(Number(frequency.value))
@@ -320,10 +368,17 @@ function calculateSafeMargin() {
   },[])
   
   useEffect(() => {
-    towerAInput.setValue(`${originPoint.lat}, ${originPoint.lat}`)
-    towerBInput.setValue(`${destinationPoint.lat}, ${destinationPoint.lat}`)
+    if(changeOrigin === 'map'){
+      towerAInput.setValue(`${originPoint.lat}, ${originPoint.lng}`)
+      towerBInput.setValue(`${destinationPoint.lat}, ${destinationPoint.lng}`)
+      setChangeOrigin('input')
+    }
     calculateAzimuthInDegrees()
-  },[originPoint, destinationPoint])
+  },[originPoint, destinationPoint, changeOrigin])
+
+  useEffect(() =>{
+    console.log('Change origin', changeOrigin)
+  },[changeOrigin])
 
   useEffect(() => {
     if (originPoint.lat && destinationPoint.lat) {
@@ -492,6 +547,8 @@ function calculateSafeMargin() {
     marginWithRainLossHorizontal,
     verticalRainViability,
     horizontalRainViability,
-    viabilidadeDevanecimento
+    viabilidadeDevanecimento,
+    changeOrigin,
+    setChangeOrigin
   }
 }

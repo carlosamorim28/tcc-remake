@@ -34,6 +34,8 @@ export default function MapController(): MapControllerInterface {
   const [midRoughness, setMidRoughness] = useState<number>(0)
   const [roughnessAtPoint, setRoughnessAtPoint] = useState<number>(0)
   const [maxScaleValue, setMaxScaleValue] = useState<number>(0)
+  const [changeOrigin, setChangeOrigin] =  useState('input')
+
 
 
 function calculateRainLoss(rainfallRate: number, frequencyGz: number, margem: number): {
@@ -664,6 +666,8 @@ function calculateRainLoss(rainfallRate: number, frequencyGz: number, margem: nu
     calculateReflexiveArea,
     maxScaleValue, 
     setMaxScaleValue,
-    calculateRainLoss
+    calculateRainLoss,
+    changeOrigin,
+    setChangeOrigin
   }
 }

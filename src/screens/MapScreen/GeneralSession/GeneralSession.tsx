@@ -31,9 +31,9 @@ export default function GeneralSession ({dataController}: {dataController: Retur
           <Checkbox controller={dataController.useTecnicalNormCheckbox} />
         </div>
 
-        {/* <div className="button-grid">
+        <div className="button-grid">
          <Button controller={dataController.generateGraphButton} />
-        </div> */}
+        </div>
         <div className="button-grid">
          <Button controller={dataController.btnAttFresnelElipsoid} />
         </div>
