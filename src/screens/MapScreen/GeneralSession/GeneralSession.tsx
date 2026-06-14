@@ -43,7 +43,7 @@ export default function GeneralSession ({dataController}: {dataController: Retur
         </div>
 
         <div className="graph-container" >
-          <Graph naturalPath={dataController.mapController.elevationPath} straightLine={dataController.mapController.sightLineNoObstructed} bottomFresnelElipsoid={dataController.mapController.bottomFresnelElipsoidNoObstructed} topFresnelElipsoid={dataController.mapController.topFresnelElipsoidNoObstructed} reflexiveRay={[]} maxYScale={dataController.mapController.maxScaleValue} />
+          <Graph naturalPath={dataController.mapController.elevationPathWithHu} straightLine={dataController.mapController.sightLineNoObstructed} bottomFresnelElipsoid={dataController.mapController.bottomFresnelElipsoidNoObstructed} topFresnelElipsoid={dataController.mapController.topFresnelElipsoidNoObstructed} reflexiveRay={[]} maxYScale={dataController.mapController.maxScaleValue} />
         </div>
     </div>
   )

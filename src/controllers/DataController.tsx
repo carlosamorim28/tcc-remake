@@ -43,6 +43,7 @@ export default function DataController() {
   const [horizontalRainViability, setHorizontalRainViabitility] = useState('')
   const [viabilidadeDevanecimento, setViabilidadeDevanecimento] = useState('')
   const [degradacao, setDegradacao] = useState<number>(0)
+  const [Hu, setHu] = useState(0)
 
 
   // const interferenceLoss = InputController("Ptências interferentes em Dbm ex: -98, -90, -99")
@@ -123,7 +124,12 @@ export default function DataController() {
     midRoughness,
     roughnessAtPoint,
     changeOrigin,
-    setChangeOrigin
+    setChangeOrigin,
+    maxInterferencePoint,
+    maxInterferencePointDistance,
+    maxInterferencePointIndex,
+    elevationPathWithHu,
+    setelevationPathWithHu
   } = mapController
 
   function calculateDevanecimentoSeletivo(roloff: number, tipoRadioclima: number) {
@@ -376,9 +382,6 @@ function calculateSafeMargin() {
     calculateAzimuthInDegrees()
   },[originPoint, destinationPoint, changeOrigin])
 
-  useEffect(() =>{
-    console.log('Change origin', changeOrigin)
-  },[changeOrigin])
 
   useEffect(() => {
     if (originPoint.lat && destinationPoint.lat) {
@@ -453,7 +456,7 @@ function calculateSafeMargin() {
     }
 
     updateElevationPath().catch(() => {
-      // evita quebrar a UI caso a API retorne erro/quota
+      
     })
   }, [originPoint, destinationPoint])
 
@@ -463,8 +466,29 @@ function calculateSafeMargin() {
 
   useEffect(()=>{
     getMaxInterferencePoint()
-    genereteFresnelElipsoid(Number(frequency.value))
   },[sightLine])
+
+  useEffect(() =>{
+    const d1 = (distanceInMeters - maxInterferencePointDistance) / 1000
+    const d2 = maxInterferencePointDistance / 1000
+    const K = 4 / 3
+    const Hu = (d1 * d2) / (12.7 * K)
+    setHu(Hu)
+
+  },[maxInterferencePoint])
+  useEffect(()=>{
+    const elevation = elevationPath.map((element, index) =>{
+      if(index === maxInterferencePointIndex){
+        return {...element, elevation: element.elevation + Hu}
+      }
+      return element
+    })
+    setelevationPathWithHu(elevation)
+    // 
+  }, [Hu])
+  useEffect(()=>{
+    genereteFresnelElipsoid(Number(frequency.value))
+  },[elevationPathWithHu])
   useEffect(()=>{
     calculateNoObstructedValues(
       Number(frequency.value),
