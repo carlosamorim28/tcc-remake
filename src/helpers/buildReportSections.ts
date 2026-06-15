@@ -176,7 +176,7 @@ export function buildReportSections(
               : "-",
         },
         {
-          label: "Diagnóstico",
+          label: "Tipo de relevo",
           value:
             midRoughness > 0 || roughnessAtPoint > 0
               ? midRoughness < roughnessAtPoint
