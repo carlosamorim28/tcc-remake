@@ -31,12 +31,17 @@ type Props = {
   topFresnelElipsoid: GeoPoint[];
   bottomFresnelElipsoid: GeoPoint[];
   reflexiveRay: GeoPoint[]
-  maxYScale?: number
+  maxYScale?: number,
+  highlightIndex?: number
 };
 
-export default function Graph({ naturalPath, straightLine, topFresnelElipsoid, bottomFresnelElipsoid, reflexiveRay,  maxYScale }: Props) {
+export default function Graph({ naturalPath, straightLine, topFresnelElipsoid, bottomFresnelElipsoid, reflexiveRay,  maxYScale,highlightIndex }: Props) {
 
   const labels = naturalPath.map((_, index) => index);
+
+  const highlightData = naturalPath.map((_, index) =>
+  index === highlightIndex ? naturalPath[index].elevation : null
+)
 
   const options = {
     responsive: true,
@@ -157,7 +162,16 @@ export default function Graph({ naturalPath, straightLine, topFresnelElipsoid, b
         borderColor: "pourple",
         tension: 0.3,
       },
-      
+      {
+        label: "Máxima Obstrução",
+        data: highlightData,
+        borderColor: "red",
+        backgroundColor: "red",
+        pointRadius: 8,
+        pointHoverRadius: 10,
+        showLine: false,        // só o ponto, sem linha
+        spanGaps: false,
+      }
     ]
   };
   
