@@ -169,13 +169,6 @@ export function buildReportSections(
               : "-",
         },
         {
-          label: "Rugosidade no ponto",
-          value:
-            midRoughness > 0 || roughnessAtPoint > 0
-              ? String(Math.ceil(roughnessAtPoint * 100) / 100)
-              : "-",
-        },
-        {
           label: "Tipo de relevo",
           value:
             midRoughness > 0 || roughnessAtPoint > 0
@@ -268,15 +261,15 @@ export function buildReportSections(
         },
         {
           label: "Indisponibilidade (horizontal)",
-          value: formatRawFraction(dataController.horizontalRainUnavailability),
+          value: formatRawFraction(Number(dataController.horizontalRainUnavailability).toFixed(3).toString()),
         },
         {
           label: "Margem degradada por chuva (horizontal)",
-          value: displayValue(dataController.marginWithRainLossHorizontal),
+          value: displayValue(Number(dataController.marginWithRainLossHorizontal).toFixed(3)),
         },
         {
           label: "Viabilidade (horizontal)",
-          value: displayValue(dataController.horizontalRainViability),
+          value: displayValue(Number(dataController.horizontalRainViability).toFixed(3).toString()),
         },
         {
           label: "Atenuação total (vertical)",
@@ -286,7 +279,11 @@ export function buildReportSections(
         },
         {
           label: "Indisponibilidade (vertical)",
-          value: formatRawFraction(dataController.verticalRainUnavailability),
+          value: formatRawFraction(Number(dataController.verticalRainUnavailability).toFixed(3).toString()),
+        },
+        {
+          label: "Margem degradada por chuva (vertical)",
+          value: displayValue(Number(dataController.marginWithRainLossVertical).toFixed(3).toString()),
         },
         {
           label: "Viabilidade (vertical)",

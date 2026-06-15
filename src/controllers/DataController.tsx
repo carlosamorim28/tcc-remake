@@ -196,7 +196,7 @@ export default function DataController() {
 
     const pd = ps6 * n
 
-    const pt = pd * devanecimentoPlano
+    const pt = pd + devanecimentoPlano
     const valor = distanceInKm / (2500 * 0.0054)
     if( pt < valor){
       setViabilidadeDevanecimento('Viável')
@@ -240,9 +240,10 @@ export default function DataController() {
       setHorizontalRainUnavailability(String(finalHorizontalLoss))
       setVerticalRainUnavailability(String(finalVerticalLoss))
 
-      const distanceInKm = distanceInMeters / 1000
+      const distKM =  distanceInMeters / 1000
+      const distanceInKm = distKM < 280 ? 280 : distKM
 
-      const valor = (distanceInKm / 2500) * 0.0003
+      const valor = (distanceInKm / 2500) * 0.003
 
       if( finalHorizontalLoss < valor){
         setVerticalRainViabitility('Viável')
