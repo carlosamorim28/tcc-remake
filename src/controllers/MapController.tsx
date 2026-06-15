@@ -11,6 +11,7 @@ export default function MapController(): MapControllerInterface {
   const [destinationPointNoObstructed, setDestinationPointNoObstructed] =  useState<LatLng>({lat: 0, lng: 0, elevation: 0})
 
   const [elevationPath, setElevationPath] = useState<LatLng[]>([])
+  const [elevationPathWithHu,setElevationPathWithHu] = useState<LatLng[]>([])
   const [distanceInMeters, setDistanceInMeters] = useState<number>(0)
 
   const [sightLine, setSightLine] = useState<LatLng[]>([]) // linha de visada
@@ -392,8 +393,8 @@ function calculateRainLoss(rainfallRate: number, frequencyGz: number, margem: nu
     const maxInterferencePointDistanceInKm = maxInterferencePointDistance / 1000
     console.log('distâncias:', { distanceInMeters, distanceInKm, maxInterferencePointDistance, maxInterferencePointDistanceInKm });
 
-    const elevationA = elevationPath[0].elevation + data.towerAHeigth
-    const elevationB = elevationPath[elevationPath.length - 1].elevation + data.towerBHeigth
+    const elevationA = elevationPathWithHu[0].elevation + data.towerAHeigth
+    const elevationB = elevationPathWithHu[elevationPathWithHu.length - 1].elevation + data.towerBHeigth
     const commumTerm = ((distanceInKm - maxInterferencePointDistanceInKm) * elevationA + maxInterferencePointDistanceInKm * elevationB) / distanceInKm
     console.log('commumTerm:', {
       elevationA,
@@ -457,8 +458,8 @@ function calculateRainLoss(rainfallRate: number, frequencyGz: number, margem: nu
           useTecnicalNorm
         }))  } })
       
-      for(let i = 0 ; i < elevationPath.length; i++) {
-        if((sightLineToCalc[i].elevation)  > elevationPath[i].elevation) {
+      for(let i = 0 ; i < elevationPathWithHu.length; i++) {
+        if((sightLineToCalc[i].elevation)  > elevationPathWithHu[i].elevation) {
           continue
         } else {
           sightLineIsHigher = false
@@ -526,16 +527,16 @@ function calculateRainLoss(rainfallRate: number, frequencyGz: number, margem: nu
     }
 
     const reflectedPointIndex = selectPointIndex(d1! * 1000)
-    const part1RelfextRay: LatLng[] = generateSightLineWithParams(originPointNoObstructed, elevationPath[reflectedPointIndex], reflectedPointIndex)
-    const part2RelfextRay: LatLng[] = generateSightLineWithParams(elevationPath[reflectedPointIndex], destinationPointNoObstructed, elevationPath.length - reflectedPointIndex)
-    setRefleexivePoint(elevationPath[reflectedPointIndex])
+    const part1RelfextRay: LatLng[] = generateSightLineWithParams(originPointNoObstructed, elevationPathWithHu[reflectedPointIndex], reflectedPointIndex)
+    const part2RelfextRay: LatLng[] = generateSightLineWithParams(elevationPathWithHu[reflectedPointIndex], destinationPointNoObstructed, elevationPathWithHu.length - reflectedPointIndex)
+    setRefleexivePoint(elevationPathWithHu[reflectedPointIndex])
     setReflexivePointIndex(reflectedPointIndex)
     setReflexiveRay([...part1RelfextRay, ...part2RelfextRay])
 
     function selectPointIndex(testedDistance: number): number {
       let actualDistance = 1000000000
       let actualIndex = 0
-      elevationPath.forEach((point, index) =>{
+      elevationPathWithHu.forEach((point, index) =>{
         const calculatedDistance = calcularDistanciaHaversine(originPoint.lat, originPoint.lng, point.lat, point.lng)
         if(Math.abs(testedDistance - calculatedDistance) < actualDistance){
           actualDistance = Math.abs(testedDistance - calculatedDistance)
@@ -548,7 +549,7 @@ function calculateRainLoss(rainfallRate: number, frequencyGz: number, margem: nu
   
 
   function calculateRoughness() {
-    const elevationPathToCalculate = [...elevationPath]
+    const elevationPathToCalculate = [...elevationPathWithHu]
     const originPointToCalculate = {...originPoint}
 
     function sumDiXHi(){
@@ -583,7 +584,7 @@ function calculateRainLoss(rainfallRate: number, frequencyGz: number, margem: nu
     const c2Numerador = sumDiXHi() - (sumDI()*sumHi() / elevationPathToCalculate.length)
     const c2Denominador = sumDISqr() - (Math.pow(sumDI(), 2) / elevationPathToCalculate.length)
     const c2 = c2Numerador / c2Denominador
-    const c1 = (sumHi() / elevationPathToCalculate.length) - c2*(sumDI() / elevationPath.length)
+    const c1 = (sumHi() / elevationPathToCalculate.length) - c2*(sumDI() / elevationPathWithHu.length)
     const y = elevationPathToCalculate.map((element) => { return c1+c2 * calcularDistanciaHaversine(originPointToCalculate.lat, originPointToCalculate.lng, element.lat, element.lng) })
     function sumHiSubYi(){
       let result = 0
@@ -628,11 +629,14 @@ function calculateRainLoss(rainfallRate: number, frequencyGz: number, margem: nu
     destinationPoint,
     distanceInMeters,
     elevationPath,
+    elevationPathWithHu,
+    setelevationPathWithHu: setElevationPathWithHu,
     originPoint,
     maxInterferencePoint,
     sightLine,
     azimuthInDegrees,
     maxInterferencePointDistance,
+    maxInterferencePointIndex,
     topFresnelElipsoid,
     bottomFresnelElipsoid,
     fresnalElipsoidRatio,

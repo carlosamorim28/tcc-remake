@@ -17,7 +17,7 @@ export default function DataSession({dataController}: {dataController: ReturnTyp
       <span className="data-session-option-line">lat {dataController.mapController.maxInterferencePoint.lat} lng {dataController.mapController.maxInterferencePoint.lng}</span>
       <span className="data-session-option-line">Distancia: {Math.ceil(dataController.mapController.maxInterferencePointDistance * 100 / 1000) / (100)}Km</span>
       <div className="graph-container" >
-        <Graph naturalPath={dataController.mapController.elevationPath} straightLine={dataController.mapController.sightLineNoObstructed} bottomFresnelElipsoid={dataController.mapController.bottomFresnelElipsoidNoObstructed} topFresnelElipsoid={dataController.mapController.topFresnelElipsoidNoObstructed} reflexiveRay={[]} maxYScale={dataController.mapController.maxScaleValue} />
+        <Graph highlightIndex={dataController.mapController.maxInterferencePointIndex} naturalPath={dataController.mapController.elevationPath} straightLine={dataController.mapController.sightLineNoObstructed} bottomFresnelElipsoid={dataController.mapController.bottomFresnelElipsoidNoObstructed} topFresnelElipsoid={dataController.mapController.topFresnelElipsoidNoObstructed} reflexiveRay={[]} maxYScale={dataController.mapController.maxScaleValue} />
       </div>
      </div>
   )

@@ -8,10 +8,13 @@ export default interface MapControllerInterface {
   topFresnelElipsoid: LatLng[]
   bottomFresnelElipsoid: LatLng[]
   elevationPath: LatLng[]
+  elevationPathWithHu: LatLng[]
+  setelevationPathWithHu: (value: LatLng[]) => void
   sightLine: LatLng[]
   distanceInMeters: number
   azimuthInDegrees: AzimuthInterface
   maxInterferencePointDistance: number
+  maxInterferencePointIndex: number
   fresnalElipsoidRatio: number[]
   originPointNoObstructed: LatLng
   destinationPointNoObstructed: LatLng

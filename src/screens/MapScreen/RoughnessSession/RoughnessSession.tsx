@@ -15,7 +15,7 @@ export default function RoughnessSession({dataController}: {dataController: Retu
         <p>Angulo reflexivo: {(dataController.mapController.reflexiveAngle * (180 / Math.PI)).toFixed(3)} Graus</p>
         <p>Area de reflexão: {dataController.mapController.calculateReflexiveArea().toFixed(2)}m²</p>
         <div className="graph-container" >
-            <Graph naturalPath={dataController.mapController.elevationPath} straightLine={dataController.mapController.sightLineNoObstructed} bottomFresnelElipsoid={dataController.mapController.bottomFresnelElipsoidNoObstructed} topFresnelElipsoid={dataController.mapController.topFresnelElipsoidNoObstructed} reflexiveRay={dataController.mapController.reflexiveRay} maxYScale={dataController.mapController.maxScaleValue} />
+            <Graph naturalPath={dataController.mapController.elevationPathWithHu} straightLine={dataController.mapController.sightLineNoObstructed} bottomFresnelElipsoid={dataController.mapController.bottomFresnelElipsoidNoObstructed} topFresnelElipsoid={dataController.mapController.topFresnelElipsoidNoObstructed} reflexiveRay={dataController.mapController.reflexiveRay} maxYScale={dataController.mapController.maxScaleValue} />
         </div>
     </>
 
