@@ -9,6 +9,9 @@ export default function GeneralSession ({dataController}: {dataController: Retur
   return (
     <div className="active-collumn">
         <div className="input-grid">
+          <Input controller={dataController.projectNameInput} />
+        </div>
+        <div className="input-grid">
           <Input controller={dataController.towerAInput} />
         </div>
         <div className="input-grid-heigth">
