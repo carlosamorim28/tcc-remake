@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from "react"
 import Button from "../../../components/Button/Button"
+import Graph from "../../../components/Graph/Graph"
 import ButtonContoller from "../../../controllers/ButtonController"
 import type DataController from "../../../controllers/DataController"
 import { buildReportSections } from "../../../helpers/buildReportSections"
@@ -9,7 +10,7 @@ const PRINT_BODY_CLASS = "print-report-mode"
 
 function handlePrint() {
   document.body.classList.add(PRINT_BODY_CLASS)
-  window.print()
+  requestAnimationFrame(() => window.print())
 }
 
 export default function ReportSession({
@@ -19,6 +20,10 @@ export default function ReportSession({
 }): React.ReactElement {
   const generatedAt = useMemo(() => new Date().toLocaleString("pt-BR"), [])
   const report = useMemo(() => buildReportSections(dataController), [dataController])
+  const projectName = dataController.projectNameInput.value.trim()
+  const reportTitle = projectName
+    ? `Relatório técnico — ${projectName}`
+    : "Relatório técnico — Enlace MW"
   const printButton = useMemo(() => ButtonContoller("Imprimir relatório", handlePrint), [])
 
   useEffect(() => {
@@ -35,7 +40,7 @@ export default function ReportSession({
   return (
     <div className="active-collumn report-session-root">
       <header className="report-session-header">
-        <h2 className="report-session-title">Relatório técnico — Enlace MW</h2>
+        <h2 className="report-session-title">{reportTitle}</h2>
         <p className="report-session-generated-at">Gerado em {generatedAt}</p>
       </header>
 
@@ -63,6 +68,23 @@ export default function ReportSession({
           ))}
         </section>
       ))}
+
+      <section className="report-session-card report-session-graph-card" aria-labelledby="report-graph-title">
+        <div className="report-session-card-title" id="report-graph-title">
+          Perfil do enlace
+        </div>
+        <div className="report-session-graph-container">
+          <Graph
+            naturalPath={dataController.mapController.elevationPathWithHu}
+            straightLine={dataController.mapController.sightLineNoObstructed}
+            bottomFresnelElipsoid={dataController.mapController.bottomFresnelElipsoidNoObstructed}
+            topFresnelElipsoid={dataController.mapController.topFresnelElipsoidNoObstructed}
+            reflexiveRay={dataController.mapController.reflexiveRay}
+            highlightIndex={dataController.mapController.maxInterferencePointIndex}
+            maxYScale={dataController.mapController.maxScaleValue}
+          />
+        </div>
+      </section>
     </div>
   )
 }

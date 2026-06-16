@@ -12,6 +12,7 @@ import { useInterferencePowerControllers } from "./useInterferencePowerControlle
 import type LatLng from "../models/LatLng";
 
 export default function DataController() {
+  const projectNameInput = InputController("Nome do Enlace")
   const towerAInput = InputController("Torre A", true)
   const towerBInput = InputController("Torre B", true)
   const twoerAHeight = InputController("Altura torre A", true)
@@ -523,6 +524,7 @@ function calculateSafeMargin() {
     mapController.setMaxScaleValue(maxHeight + 10)
   }, [topFresnelElipsoidNoObstructed])
   return{
+    projectNameInput,
     towerAInput,
     towerBInput,
     twoerAHeight,

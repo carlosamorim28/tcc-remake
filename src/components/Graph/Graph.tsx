@@ -46,21 +46,22 @@ export default function Graph({ naturalPath, straightLine, topFresnelElipsoid, b
   const options = {
     responsive: true,
     maintainAspectRatio: false,
+    color: "#333",
 
     scales: {
       x: {
         title: {
           display: true,
           text: "Distância ao longo do perfil (km)",
+          color: "#333",
           font: {
             size: 14,
             weight: "bold",
           },
         },
-        
 
         ticks: {
-          // Formata os valores do eixo X
+          color: "#333",
           callback: (value: number) => {
             return `${value * 0.5} km`;
           },
@@ -70,25 +71,32 @@ export default function Graph({ naturalPath, straightLine, topFresnelElipsoid, b
           autoSkip: true,
           maxTicksLimit: 10,
         },
+        grid: {
+          color: "#e0e0e0",
+        },
       },
 
       y: {
         title: {
           display: true,
           text: "Elevação (m)",
+          color: "#333",
           font: {
             size: 14,
             weight: "bold",
           },
         },
         min: 0,
-        max: maxYScale,  
+        max: maxYScale,
 
         ticks: {
-          // Ex: arredondar e adicionar unidade
+          color: "#333",
           callback: (value: number) => {
             return `${Math.round(value)} m`;
           },
+        },
+        grid: {
+          color: "#e0e0e0",
         },
       },
     },
@@ -96,11 +104,12 @@ export default function Graph({ naturalPath, straightLine, topFresnelElipsoid, b
     plugins: {
       legend: {
         labels:{
+        color: "#333",
         boxHeight: 1,
         padding: 20,
         font: {
           size: 13,
-          lineHeight: 1.5, // 🔥 controla o espaçamento vertical do texto
+          lineHeight: 1.5,
         },
         generateLabels: (chart) => {
           return chart.data.datasets.map((dataset, i) => ({
